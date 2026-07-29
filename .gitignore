@@ -1,0 +1,6 @@
+node_modules/
+package-lock.json
+
+# Chrome profiles / scratch output from the verification scripts
+.cache/
+*.log
