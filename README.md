@@ -154,3 +154,42 @@ node kverify.mjs
 
 Verifies the Knowledge page: console errors, counter, corpus segments, share
 bars, reduced motion, and 390px overflow.
+
+---
+
+## Channels page (`channels.html`)
+
+Built from a screen recording of the live product (extracted to frames with
+`framegrab.py`). The original Channels screen is thirteen full-width rows, each
+about 100px tall, each carrying three data points and the sentence "No agent
+connected yet".
+
+The redesign uses information the current screen hides: **channels differ
+enormously in setup cost**, and that is the only thing a user picking one
+actually cares about. Grouped accordingly:
+
+- **One click** (5) — WhatsApp, Messenger, Instagram via Meta signup; Gmail and
+  Outlook via OAuth
+- **Bring a token** (6) — Telegram, LINE, Discord, Teams, Slack, WeChat
+- **Needs a phone number** (1) — Phone, via Twilio
+
+The website widget is pulled out above them as the recommended path, because it
+is the only channel requiring no third-party account at all.
+
+### The empty-state component
+
+The single highest-leverage fix in the product. Providers, MCP Tools, Channels,
+Usage & Billing and the Dashboard all currently render the same ~380px bordered
+box with a centred grey icon. `.empty` replaces it with a one-line, left-aligned
+row that states the consequence and carries the action. Fixing it once fixes
+five screens.
+
+## Working from a screen recording
+
+```bash
+python framegrab.py <video> [outdir] [--motion=SECONDS]
+```
+
+Writes a contact sheet of ~30 evenly spaced frames, full-resolution frames at
+each detected scene change, and optionally a dense burst around one timestamp
+for reading a single transition. Requires ffmpeg on PATH.
