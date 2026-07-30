@@ -49,11 +49,11 @@ px, or ad-hoc duration appears below that block.
 
 | Group | Notes |
 |---|---|
-| Color | Near-monochrome greys, one violet accent (`#7c3aed`). Light and dark are full peers. |
+| Color | Pure white base, one violet accent (`#7c3aed`). Light and dark are full peers. |
 | Data palette | The PXO logo colors: blue `#3a33c9`, violet `#7c3aed`, magenta `#b23fc9`, cyan `#18bccf`. |
 | Type | Manrope (display and body) + JetBrains Mono (micro labels only, never below 11px). |
 | Space | 4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 56 / 72 — real jumps, not uniform 16. |
-| Shape | 6 / 9 / 12 / 16 / 22 / pill. |
+| Shape | 4 / 6 / 8 / 10 / 12 / pill — sharpened to match the references. |
 | Motion | `--ease: cubic-bezier(.22,1,.36,1)`, durations 150 / 300 / 600ms. GSAP reads the same scale. |
 
 The brand gradient appears in exactly three places: the logo mark, the avatar,
@@ -111,3 +111,46 @@ Lists any element overflowing a 390px viewport.
      mobile.
 - The icon sprite uses `<symbol viewBox>`, not `<g>`. A `<g>` has no viewBox, so
   a 24px artboard gets cropped to the top-left 16px.
+
+---
+
+## Knowledge page (`knowledge.html`)
+
+Redesigned against the user's own visual references (two Cloudflare screens and
+a dark FlowBank landing page). The shared language across all three:
+near-monochrome high-contrast base, a single saturated accent used sparingly,
+heavy display type dropping hard to quiet body text, modest radii, hairline
+borders, almost no shadow, and one large saturated graphic.
+
+That pulled the token system in a specific direction:
+
+- Background moved from `#f6f6f9` to **pure white**; surfaces separate by
+  hairline border rather than a grey wash.
+- Radii **sharpened** from 6/9/12/16/22 to 4/6/8/10/12. Pills are now reserved
+  for the uppercase eyebrow badge only.
+- Shadows went **near-flat**.
+- Added `--t-4xl: 60px` for editorial display type.
+
+Both pages share these tokens, so the dashboard moved with it.
+
+### What changed on the page itself
+
+The original showed four stat cards (two of them zero), a thin two-row list, and
+~250px of empty space below. The redesign leads with an eyebrow pill and a
+weight-mixed statement line (FlowBank's device), then gives the page one large
+saturated graphic: a corpus bar where segment width is each source's real share
+of the 462 chunks.
+
+The substantive addition is a **density metric**. India_Wiki produced 310 chunks
+from 25 pages (12.4/page); PROP EQUITY produced 152 from 65 (2.3/page). It
+crawled 2.6x more pages for half the chunks, which is the signature of a
+client-rendered site where the static fetcher saw an empty shell. The page now
+names that and offers the fix inline, next to the diagnosis rather than in a
+far corner of the card.
+
+```bash
+node kverify.mjs
+```
+
+Verifies the Knowledge page: console errors, counter, corpus segments, share
+bars, reduced motion, and 390px overflow.

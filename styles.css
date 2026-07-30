@@ -8,14 +8,16 @@
 
 :root {
   /* --- Color: light ------------------------------------------------ */
-  --bg: #f6f6f9;
+  /* Pure white, per both Cloudflare references. Surfaces separate by
+     hairline border, not by a grey wash. */
+  --bg: #ffffff;
   --surface: #ffffff;
-  --well: #fafafc;
-  --text: #0c0c11;
-  --text-2: #56566a;
-  --text-3: #8a8a9c;
-  --border: #e9e9f0;
-  --border-2: #dcdce6;
+  --well: #f7f7f8;
+  --text: #08080b;
+  --text-2: #52525f;
+  --text-3: #86868f;
+  --border: #e4e4e9;
+  --border-2: #d3d3db;
   --accent: #7c3aed;
   --accent-ink: #ffffff;
   --accent-soft: rgba(124, 58, 237, 0.09);
@@ -45,6 +47,7 @@
   --t-xl: 27px;
   --t-2xl: 34px;
   --t-3xl: 44px;
+  --t-4xl: 60px;     /* editorial display — the references go big */
 
   /* --- Space ------------------------------------------------------- */
   --s-1: 4px;
@@ -59,17 +62,20 @@
   --s-10: 72px;
 
   /* --- Shape ------------------------------------------------------- */
-  --r-xs: 6px;
-  --r-sm: 9px;
-  --r-md: 12px;
-  --r-lg: 16px;
-  --r-xl: 22px;
+  /* Sharpened toward the references: their buttons are ~4px, cards ~8px.
+     Pills are reserved for the uppercase eyebrow badge. */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 10px;
+  --r-xl: 12px;
   --r-pill: 999px;
 
   /* --- Depth ------------------------------------------------------- */
-  --sh-1: 0 1px 2px rgba(12, 12, 17, 0.05);
-  --sh-2: 0 2px 6px rgba(12, 12, 17, 0.06), 0 1px 2px rgba(12, 12, 17, 0.04);
-  --sh-3: 0 18px 44px -20px rgba(12, 12, 17, 0.22), 0 2px 8px rgba(12, 12, 17, 0.05);
+  /* Near-flat. The references separate with hairlines, not elevation. */
+  --sh-1: none;
+  --sh-2: 0 1px 2px rgba(8, 8, 11, 0.05);
+  --sh-3: 0 12px 32px -16px rgba(8, 8, 11, 0.16);
 
   /* --- Motion (shared by CSS + GSAP) -------------------------------- */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -82,9 +88,10 @@
 }
 
 :root[data-theme="dark"] {
-  --bg: #08080c;
-  --surface: #121218;
-  --well: #0d0d13;
+  /* FlowBank reference: near-black, warm accent lift, no grey mid-tones. */
+  --bg: #08080a;
+  --surface: #100f13;
+  --well: #0c0b0f;
   --text: #f2f2f6;
   --text-2: #9a9aab;
   --text-3: #6a6a7b;
@@ -235,12 +242,23 @@ svg { display: block; }
 .nav__item:hover { background: var(--well); color: var(--text); }
 .nav__item:hover .icon { color: var(--text-2); }
 
+/* Surface and page are both white now, so the active row reads via the well
+   tint plus the accent rule on its leading edge. */
 .nav__item.is-active {
-  background: var(--surface);
+  position: relative;
+  background: var(--well);
   color: var(--text);
-  box-shadow: var(--sh-2);
-  border: 1px solid var(--border);
-  padding: 6px calc(var(--s-2) - 1px);
+  font-weight: 700;
+}
+.nav__item.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
 }
 .nav__item.is-active .icon { color: var(--accent); }
 
@@ -844,4 +862,230 @@ svg { display: block; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* =========================================================================
+   KNOWLEDGE PAGE
+   Reference DNA applied: pure white, hairline separation, one saturated
+   accent, uppercase pill eyebrow, a headline that mixes weights, and one
+   large saturated graphic that bleeds toward the right edge.
+   ========================================================================= */
+
+.khead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--s-8);
+  padding-bottom: var(--s-8);
+}
+
+.eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 5px 12px 5px 10px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-pill);
+  margin-bottom: var(--s-5);
+}
+
+/* FlowBank's device: one line, two weights. */
+.kstatement {
+  font-size: var(--t-4xl);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  font-weight: 300;
+  text-wrap: balance;
+  max-width: 19ch;
+}
+.kstatement strong { font-weight: 800; }
+.kstatement em { font-style: normal; color: var(--accent); }
+
+.ksub {
+  margin-top: var(--s-5);
+  max-width: 46ch;
+  font-size: var(--t-md);
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+/* --- The corpus bar: the page's one big saturated moment --------------- */
+
+.corpus {
+  position: relative;
+  padding: var(--s-7) 0 var(--s-8);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--s-8);
+}
+
+.corpus__top { display: flex; align-items: baseline; gap: var(--s-4); margin-bottom: var(--s-5); }
+.corpus__total { margin-left: auto; font-family: var(--mono); font-size: var(--t-micro); color: var(--text-3); }
+
+.corpus__bar {
+  display: flex;
+  gap: 3px;
+  height: 76px;
+  align-items: stretch;
+}
+
+.corpus__seg {
+  position: relative;
+  border-radius: var(--r-xs);
+  overflow: hidden;
+  transform: scaleX(0);
+  transform-origin: left center;
+  cursor: pointer;
+  transition: filter var(--dur-fast) var(--ease);
+}
+.corpus__seg:hover { filter: brightness(1.08); }
+.corpus__seg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 62%);
+}
+
+.corpus__seg--rest { background: var(--well); border: 1px dashed var(--border-2); }
+.corpus__seg--rest::after { display: none; }
+
+.corpus__legend { display: flex; flex-wrap: wrap; gap: var(--s-6); margin-top: var(--s-5); }
+.clg { display: flex; align-items: center; gap: var(--s-3); }
+.clg__sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.clg__n { font-size: var(--t-sm); font-weight: 700; letter-spacing: -0.01em; }
+.clg__m { font-family: var(--mono); font-size: var(--t-micro); color: var(--text-3); }
+
+/* --- Status strip ------------------------------------------------------ */
+
+.kstrip { display: flex; align-items: center; gap: var(--s-8); flex-wrap: wrap; }
+.kstat { display: flex; align-items: baseline; gap: var(--s-3); }
+.kstat__v { font-size: var(--t-xl); font-weight: 800; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.kstat.is-zero .kstat__v { color: var(--text-3); font-weight: 500; }
+
+/* --- Toolbar ----------------------------------------------------------- */
+
+.ktools { display: flex; align-items: center; gap: var(--s-4); margin-bottom: var(--s-6); flex-wrap: wrap; }
+
+.tabs { display: flex; gap: var(--s-1); padding: 3px; border: 1px solid var(--border); border-radius: var(--r-md); }
+.tabs button {
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px var(--s-4);
+  border-radius: var(--r-sm);
+  font-size: var(--t-sm); font-weight: 700; color: var(--text-2);
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.tabs button:hover { color: var(--text); }
+.tabs button.is-on { background: var(--text); color: var(--surface); }
+
+/* Cloudflare signup: hairline field, no fill, generous height. */
+.field {
+  flex: 1;
+  min-width: 220px;
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: 0 var(--s-4);
+  height: 40px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-sm);
+  color: var(--text-3);
+  transition: border-color var(--dur-fast) var(--ease);
+}
+.field:focus-within { border-color: var(--accent); }
+.field input {
+  flex: 1; border: 0; outline: 0; background: none;
+  font: inherit; font-size: var(--t-sm); color: var(--text);
+}
+.field input::placeholder { color: var(--text-3); }
+
+/* --- Source cards ------------------------------------------------------ */
+
+.sources { display: grid; gap: var(--s-4); }
+
+.src {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: var(--s-5);
+  padding: var(--s-6);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.src:hover { border-color: var(--border-2); background: var(--well); }
+
+.src__mark {
+  width: 44px; height: 44px;
+  border-radius: var(--r-md);
+  display: grid; place-items: center;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+}
+
+.src__top { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+.src__name { font-size: var(--t-md); font-weight: 800; letter-spacing: -0.022em; }
+.src__url {
+  margin-top: 3px;
+  font-family: var(--mono); font-size: var(--t-micro);
+  color: var(--text-3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.src__facts { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-7); margin-top: var(--s-5); }
+.fact__v { margin-top: 4px; font-size: var(--t-base); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.015em; }
+.fact__v.is-warn { color: var(--warn); }
+
+.src__share { margin-top: var(--s-5); }
+.src__track { height: 4px; border-radius: var(--r-pill); background: var(--well); overflow: hidden; }
+.src__fill { height: 100%; border-radius: inherit; transform: scaleX(0); transform-origin: left; }
+
+.src__side { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: var(--s-4); }
+.src__acts { display: flex; gap: var(--s-2); opacity: 0; transform: translateY(3px); transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
+.src:hover .src__acts { opacity: 1; transform: none; }
+
+/* A diagnosis, not a decoration: low chunk density means the crawler
+   probably could not read the page. */
+.flag {
+  display: flex; align-items: flex-start; gap: var(--s-3);
+  margin-top: var(--s-5); padding: var(--s-4);
+  border: 1px solid var(--warn-soft);
+  background: var(--warn-soft);
+  border-radius: var(--r-md);
+}
+.flag__t { font-size: var(--t-sm); font-weight: 700; color: var(--warn); }
+.flag__d { margin-top: 2px; font-size: var(--t-sm); line-height: 1.5; color: var(--text-2); }
+.flag .icon { color: var(--warn); flex: none; margin-top: 1px; }
+
+@media (max-width: 1180px) {
+  .khead { grid-template-columns: 1fr; gap: var(--s-6); }
+  .kstatement { max-width: none; }
+}
+@media (max-width: 900px) {
+  :root { --t-4xl: 40px; }
+  .src { grid-template-columns: 36px minmax(0, 1fr); }
+  .src__mark { width: 36px; height: 36px; }
+  .src__side { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+  .src__acts { opacity: 1; transform: none; }
+  .corpus__bar { height: 56px; }
+}
+
+/* Saturated primary, the Cloudflare "Start for free" treatment. Used once
+   per page, never twice. */
+.btn--accent { background: var(--accent); color: var(--accent-ink); }
+.btn--accent:hover { filter: brightness(1.08); }
+
+/* Nav rows are links where they navigate. */
+a.nav__item { text-decoration: none; }
+
+/* A source that needs action keeps its action visible. Hover-only would hide
+   the single most important control on the page. */
+.src.is-flagged { border-color: var(--warn-soft); }
+.src.is-flagged .src__acts { opacity: 1; transform: none; }
+
+/* The fix belongs next to the diagnosis, not in a far corner of the card. */
+.flag { align-items: center; gap: var(--s-4); border-color: rgba(180, 83, 9, 0.24); }
+.flag__act { flex: none; margin-left: auto; }
+:root[data-theme="dark"] .flag { border-color: rgba(224, 160, 44, 0.28); }
+
+@media (max-width: 900px) {
+  .flag { align-items: flex-start; flex-wrap: wrap; }
+  .flag__act { margin-left: 0; width: 100%; justify-content: center; }
 }
