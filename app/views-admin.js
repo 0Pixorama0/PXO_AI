@@ -34,7 +34,7 @@ export function Providers() {
 
   return frag(
     pageHead({
-      eyebrowIcon: "radio", eyebrow: `Providers · ${all.length} configured`,
+      eyebrowIcon: "key", eyebrow: `Providers · ${all.length} configured`,
       accentWord: all.length ? String(all.length) : "No",
       rest: all.length ? "credentials powering every agent." : "credentials stored yet.",
       sub: "Speech, voice, language and embedding keys live here, encrypted at rest. Agents reference them rather than holding their own copies.",
@@ -44,7 +44,8 @@ export function Providers() {
       ? empty(
           `${missing.length} of 4 capabilities have no provider`,
           "Missing " + missing.map((m) => m.name.toLowerCase()).join(", ") + ". Agents cannot run a full turn until each one resolves.",
-          btn("Add provider", { kind: "accent", size: "sm", onClick: () => addProviderModal() }))
+          btn("Add provider", { kind: "accent", size: "sm", onClick: () => addProviderModal() }),
+          { tone: "warn" })
       : null,
     h("div.ktools", {}, filters),
     list.length
@@ -59,7 +60,7 @@ export function Providers() {
 function providerRow(p) {
   const kind = S.PROVIDER_KINDS.find((k) => k.id === p.kind);
   return h("article.src", {},
-    h("span.src__mark", {}, icon("radio", 18)),
+    h("span.src__mark", {}, icon("key", 18)),
     h("div", {},
       h("div.src__top", {}, h("h2.src__name", {}, p.name), pill(kind.name, "accent"), pill("Verified", "ok")),
       h("p.src__url", {}, "sk_live_" + "•".repeat(28)),
@@ -94,7 +95,7 @@ function addProviderModal(preset) {
           e.currentTarget.classList.add("is-on");
           drawNames();
         } },
-        icon(k.id === "stt" ? "msg" : k.id === "tts" ? "radio" : k.id === "llm" ? "zap" : "db", 18),
+        icon({ stt: "msg", tts: "radio", llm: "server", embed: "db" }[k.id], 18),
         h("span.pickrow__t", {}, k.name),
         h("span.pickrow__d", {}, k.blurb)))),
     nameHost,
@@ -199,7 +200,8 @@ export function Plans() {
       sub: "Plans cap agents, channels, tool servers, storage and monthly chats. Until one is assigned nothing is metered and nothing is capped.",
     }),
     s.activePlan ? null : empty("Quotas are not being enforced",
-      "Any user can create unlimited agents, channels and sources right now. Assign a plan before this workspace goes to production."),
+      "Any user can create unlimited agents, channels and sources right now. Assign a plan before this workspace goes to production.",
+      null, { tone: "warn" }),
     h("div.plans", {}, ...s.plans.map((p) => {
       const on = s.activePlan === p.id;
       return h("article.plan" + (on ? ".is-on" : ""), {},
@@ -231,14 +233,14 @@ export function Usage() {
 
   if (!u.conversations) {
     return frag(
-      pageHead({ eyebrowIcon: "chart", eyebrow: "Usage · this period", accentWord: money(0), rest: "spent so far.",
+      pageHead({ eyebrowIcon: "receipt", eyebrow: "Usage · this period", accentWord: money(0), rest: "spent so far.",
         sub: "Every unit of speech, language model, telephony and embedding work is metered per request." }),
       empty("Nothing has been metered yet", "Costs appear the moment a channel takes its first conversation.",
         btn("Deploy a channel", { kind: "accent", size: "sm", onClick: () => go("#/channels") })));
   }
 
   return frag(
-    pageHead({ eyebrowIcon: "chart", eyebrow: `Usage · ${u.conversations} conversations`,
+    pageHead({ eyebrowIcon: "receipt", eyebrow: `Usage · ${u.conversations} conversations`,
       accentWord: money(u.cost), rest: "spent this period.",
       sub: "Metered per request across speech, language model, telephony and embedding calls. No plan is applied to these figures unless one is assigned." }),
     statStrip([

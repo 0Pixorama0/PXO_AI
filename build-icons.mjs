@@ -6,6 +6,13 @@ import { readFileSync, writeFileSync } from "node:fs";
 /* our sprite id -> lucide icon name */
 const MAP = {
   dash:     "layout-dashboard",
+  blocks:   "blocks",        // MCP tools are plugins, not electricity
+  key:      "key-round",     // Providers is a credential store
+  waypoints:"waypoints",     // Channels is distribution, not just a phone
+  receipt:  "receipt",       // Usage & Billing
+  info:     "info",          // an empty state is usually information
+  warn:     "circle-alert",  // ...and only sometimes a problem
+  server:   "server",
   book:     "book-open",
   zap:      "zap",
   bot:      "bot",

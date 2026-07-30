@@ -11,16 +11,16 @@ const NAV = [
   { group: "Generic", items: [
     { id: "dashboard", label: "Dashboard", icon: "dash",  route: "#/" },
     { id: "knowledge", label: "Knowledge", icon: "book",  route: "#/knowledge" },
-    { id: "mcp",       label: "MCP Tools", icon: "zap",   route: "#/mcp" },
+    { id: "mcp",       label: "MCP Tools", icon: "blocks",    route: "#/mcp" },
     { id: "agents",    label: "Agents",    icon: "bot",   route: "#/agents" },
-    { id: "channels",  label: "Channels",  icon: "phone", route: "#/channels" },
+    { id: "channels",  label: "Channels",  icon: "waypoints", route: "#/channels" },
     { id: "inbox",     label: "Inbox",     icon: "inbox", route: "#/inbox" },
   ]},
   { group: "Admin", items: [
-    { id: "providers", label: "Providers",      icon: "radio", route: "#/providers" },
+    { id: "providers", label: "Providers",      icon: "key",     route: "#/providers" },
     { id: "users",     label: "Users",          icon: "users", route: "#/users" },
     { id: "plans",     label: "Plans",          icon: "card",  route: "#/plans" },
-    { id: "usage",     label: "Usage & Billing",icon: "chart", route: "#/usage" },
+    { id: "usage",     label: "Usage & Billing",icon: "receipt", route: "#/usage" },
     { id: "settings",  label: "Settings",       icon: "gear",  route: "#/settings" },
   ]},
 ];

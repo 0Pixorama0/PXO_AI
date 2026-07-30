@@ -99,10 +99,12 @@ export function pageHead({ eyebrowIcon = "dash", eyebrow, accentWord, rest, sub,
     actions ? h("div", { style: { display: "flex", gap: "var(--s-3)" } }, actions) : null);
 }
 
-/** The one-line empty state that replaces the 380px grey box. */
-export function empty(title, desc, action) {
-  return h("div.empty", {},
-    icon("alert", 18, { color: "var(--accent)", flex: "none" }),
+/** The one-line empty state that replaces the 380px grey box.
+    Most empty states are information, not alarms — "no sources yet" on a new
+    account is normal. Only pass tone:"warn" when something is actually wrong. */
+export function empty(title, desc, action, { tone = "info", icon: ic } = {}) {
+  return h(`div.empty.empty--${tone}`, {},
+    icon(ic || (tone === "warn" ? "warn" : "info"), 18, { flex: "none" }),
     h("div", {}, h("p.empty__t", {}, title), h("p.empty__d", {}, desc)),
     action || null);
 }

@@ -396,11 +396,11 @@ export function Mcp() {
                   h("span.tile__r", {}, t.desc)),
                 h("span.tile__go", {}, icon(on ? "check" : "arrow", 14)));
             }))
-          : empty("Nothing matches that search", "Try a different term or clear the category filter."));
+          : empty("Nothing matches that search", "Try a different term or clear the category filter.", null, { icon: "search" }));
 
   return frag(
     pageHead({
-      eyebrowIcon: "zap", eyebrow: `MCP · ${mine.length} connected`,
+      eyebrowIcon: "blocks", eyebrow: `MCP · ${mine.length} connected`,
       accentWord: String(S.MCP_CATALOG.length), rest: "tools your agents can call.",
       sub: "Model Context Protocol servers let an agent take real actions: open a ticket, look up an order, post a message. Connect once and attach per agent.",
     }),
@@ -586,7 +586,7 @@ function abilitiesStep() {
               rerender();
             } },
             h("span.checkrow__b", {}, on ? icon("check", 12) : null),
-            h("span.row__icon", {}, icon("zap", 14)),
+            h("span.row__icon", {}, icon("blocks", 14)),
             h("span", {}, h("span.row__name", {}, m.name), h("span.row__meta", {}, `${m.tools} tools`)),
             on ? pill("Attached", "ok") : null);
         }))
@@ -687,7 +687,7 @@ export function Channels() {
 
   return frag(
     pageHead({
-      eyebrowIcon: "radio", eyebrow: `Channels · ${live.length} of ${S.CHANNEL_TYPES.length} live`,
+      eyebrowIcon: "waypoints", eyebrow: `Channels · ${live.length} of ${S.CHANNEL_TYPES.length} live`,
       accentWord: live.length ? String(live.length) : "Nowhere",
       rest: live.length ? `channel${live.length === 1 ? "" : "s"} carrying your agent.` : "to answer yet.",
       sub: live.length
@@ -695,7 +695,7 @@ export function Channels() {
         : "Your agent is built and its knowledge is indexed. It just has no way to reach anyone. Connecting one channel is all that stands between here and a first conversation.",
     }),
     live.length ? null : empty("No channel is deployed, so nothing reaches your agent",
-      "Calls, chats and messages all arrive through a channel. Until one is live the dashboard stays empty."),
+      "Calls, chats and messages all arrive through a channel. Until one is live the dashboard stays empty.", null, { tone: "warn" }),
     pick, ...groups);
 }
 

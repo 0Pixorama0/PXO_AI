@@ -302,3 +302,12 @@ body.is-narrow .nav__dot { display: none; }
 
 .logo { height: 26px; width: auto; flex: none; display: block; }
 body.is-narrow .logo { height: 22px; }
+
+/* An empty state is information by default; only a real problem gets the
+   warning treatment. Previously every one of them showed a warning triangle. */
+/* Doubled class so these beat the base .empty rule regardless of file order —
+   .empty sets border-left as a shorthand, which would otherwise win. */
+.empty.empty--info { border-left-color: var(--accent); }
+.empty.empty--info > .icon { color: var(--accent); }
+.empty.empty--warn { border-left-color: var(--warn); background: var(--warn-soft); border-color: var(--warn-soft); border-left-color: var(--warn); }
+.empty.empty--warn > .icon { color: var(--warn); }

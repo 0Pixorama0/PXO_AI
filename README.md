@@ -71,7 +71,13 @@ node build-icons.mjs
 ```
 
 Add an entry to `MAP` in that script and re-run it to pull a new icon straight from
-`lucide-static`. Licence in `vendor/LICENSE.lucide`.
+`lucide-static`. Licence in `vendor/LICENSE.lucide`. The PXO brand mark lives in the
+same generator — it carries its own gradient, so it is defined there rather than
+pulled from the icon set.
+
+Icons are chosen for meaning, not convenience: MCP Tools is `blocks` because tool
+servers are plugins, Providers is `key-round` because it is a credential store,
+Channels is `waypoints` because it is distribution across thirteen destinations.
 
 The rule that keeps it coherent: **no screen holds its own copy of anything.**
 Every number is derived from the store, so the dashboard, the plan card and the
