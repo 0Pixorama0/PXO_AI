@@ -63,6 +63,16 @@ app/main.js         shell, nav, hash router
 
 No build step, no framework. ES modules and one vendored copy of GSAP.
 
+**Icons are [Lucide](https://lucide.dev) (ISC)** — the same set shadcn/ui uses, so
+they match the real app. The sprite in `index.html` is generated, never hand-drawn:
+
+```bash
+node build-icons.mjs
+```
+
+Add an entry to `MAP` in that script and re-run it to pull a new icon straight from
+`lucide-static`. Licence in `vendor/LICENSE.lucide`.
+
 The rule that keeps it coherent: **no screen holds its own copy of anything.**
 Every number is derived from the store, so the dashboard, the plan card and the
 usage page cannot disagree.

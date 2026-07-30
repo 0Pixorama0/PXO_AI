@@ -92,11 +92,13 @@ function topbar(crumb) {
       h("button.iconbtn", { "aria-label": "Notifications", onclick: notificationsModal },
         icon("bell"),
         unread ? h("span.iconbtn__badge.num", {}, String(unread)) : null),
+      // Show the mode you would switch to, not the one you are in.
       h("button.iconbtn", { "aria-label": "Toggle theme", onclick: () => {
           const next = root.dataset.theme === "dark" ? "light" : "dark";
           root.dataset.theme = next;
           localStorage.setItem("voiceforge.theme", next);
-        } }, icon("sun")),
+          render();
+        } }, icon(root.dataset.theme === "dark" ? "sun" : "moon")),
       h("div.avatar", {}, s.users[0]?.name.slice(0, 1) || "U")));
 }
 
