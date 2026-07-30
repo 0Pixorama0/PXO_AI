@@ -3,7 +3,7 @@
    ========================================================================= */
 
 import * as S from "./store.js";
-import { h, frag, icon, btn, pill, ago, modal, close, toast, enter } from "./ui.js";
+import { h, frag, icon, btn, pill, ago, modal, close, toast, enter, logoMark } from "./ui.js";
 import * as Core from "./views-core.js";
 import * as Admin from "./views-admin.js";
 
@@ -66,7 +66,7 @@ function sidebar(activeId) {
   const w = S.get().workspace;
   return h("aside.sidebar", {},
     h("a.brand", { href: "#/" },
-      h("div.brand__mark", {}, w.logo),
+      logoMark(w),
       h("span.brand__name", {}, w.name)),
     h("nav", {}, ...NAV.map((g) =>
       h("div.nav__group", {},

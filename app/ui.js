@@ -47,6 +47,23 @@ export function icon(id, size = 16, extra = {}) {
   return svg;
 }
 
+/** The PXO brand mark. A white-label workspace that has set its own initials
+    gets the gradient-square fallback instead. */
+export function logoMark(workspace) {
+  if (!workspace.officialMark) {
+    return h("div.brand__mark", {}, workspace.logo || "PX");
+  }
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "logo");
+  svg.setAttribute("viewBox", "0 0 197 122");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", "Pixorama");
+  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  use.setAttribute("href", "#i-pxo");
+  svg.append(use);
+  return svg;
+}
+
 /* --- Formatting --------------------------------------------------------- */
 
 export const n = (v) => (v ?? 0).toLocaleString();

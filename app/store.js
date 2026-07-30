@@ -98,7 +98,7 @@ export const WIZARD_STEPS = ["Identity", "Persona", "Knowledge", "Abilities", "E
 
 function seed() {
   return {
-    workspace: { name: "Pixorama", accent: "#7c3aed", logo: "PX", tier: "enterprise" },
+    workspace: { name: "Pixorama", accent: "#7c3aed", logo: "PX", officialMark: true, tier: "enterprise" },
     models: { llm: "Claude Opus 5", embed: "text-embedding-3-large", stt: "Deepgram", tts: "ElevenLabs" },
     composio: { mcpKey: "", platformKey: "", url: "https://connect.composio.dev/mcp" },
 
@@ -304,7 +304,13 @@ export const actions = {
     });
   },
 
-  setBranding(patch) { update((s) => Object.assign(s.workspace, patch)); },
+  setBranding(patch) {
+    update((s) => {
+      // Setting your own initials means you are white-labelling; drop the PXO mark.
+      if (patch.logo !== undefined) patch.officialMark = false;
+      Object.assign(s.workspace, patch);
+    });
+  },
   setModel(slot, value) { update((s) => { s.models[slot] = value; }); },
   setComposio(patch) { update((s) => Object.assign(s.composio, patch)); },
 

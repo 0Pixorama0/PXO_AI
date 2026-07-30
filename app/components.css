@@ -297,3 +297,8 @@ body.is-narrow .nav__dot { display: none; }
 
 /* Four tone options should sit on one row inside the 760px wizard column. */
 .wz .choices { grid-template-columns: repeat(auto-fit, minmax(166px, 1fr)); }
+
+/* --- Brand mark --------------------------------------------------------- */
+
+.logo { height: 26px; width: auto; flex: none; display: block; }
+body.is-narrow .logo { height: 22px; }
