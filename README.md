@@ -75,7 +75,14 @@ Add an entry to `MAP` in that script and re-run it to pull a new icon straight f
 same generator — it carries its own gradient, so it is defined there rather than
 pulled from the icon set.
 
-Icons are chosen for meaning, not convenience: MCP Tools is `blocks` because tool
+Third-party brand marks come from [simple-icons](https://simpleicons.org) (CC0),
+emitted as `#b-<slug>`. Microsoft, Slack, Twilio and Salesforce have had their
+icons **removed from simple-icons at their own trademark request** — those fall
+back to a functional Lucide glyph in the brand colour (`fb:` in the data) rather
+than a hand-drawn approximation of someone's logo. Trademarks belong to their
+owners; used here only to identify the service.
+
+Lucide icons are chosen for meaning, not convenience: MCP Tools is `blocks` because tool
 servers are plugins, Providers is `key-round` because it is a credential store,
 Channels is `waypoints` because it is distribution across thirteen destinations.
 

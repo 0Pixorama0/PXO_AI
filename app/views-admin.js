@@ -5,7 +5,7 @@
 import * as S from "./store.js";
 import {
   h, frag, icon, n, money, ago, pageHead, empty, pill, btn, field, input,
-  select, toggle, choice, tabs, statStrip, group, card, modal, close, toast,
+  select, toggle, choice, tabs, statStrip, group, card, modal, close, toast, brandMark,
 } from "./ui.js";
 import { rerender } from "./views-core.js";
 
@@ -326,7 +326,7 @@ function channelsPanel() {
       ? frag(...live.map((c) => {
           const def = S.CHANNEL_TYPES.find((t) => t.id === c.type);
           return h("div.row", {},
-            h("span.row__icon", { style: { background: def.colour, color: "#fff", borderColor: "transparent" } }, def.mark),
+            h("span.row__icon", {}, brandMark(def, 16)),
             h("div", {}, h("p.row__name", {}, def.name), h("p.row__meta", {}, "Deployed " + ago(c.created))),
             h("div.row__end", {}, pill("Live", "ok", true),
               btn("Disconnect", { size: "sm", onClick: () => { S.actions.removeChannel(c.id); toast(def.name + " disconnected"); } })));

@@ -47,6 +47,21 @@ export function icon(id, size = 16, extra = {}) {
   return svg;
 }
 
+/** A third-party brand mark. Real logo where simple-icons carries one, a
+    functional Lucide glyph in the brand colour where it does not. */
+export function brandMark(def, size = 20) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", def.brand ? "brand-i" : "icon");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.style.width = size + "px";
+  svg.style.height = size + "px";
+  svg.style.color = def.colour || "var(--text-2)";
+  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  use.setAttribute("href", (def.brand ? "#b-" : "#i-") + (def.brand || def.fb || "globe"));
+  svg.append(use);
+  return svg;
+}
+
 /** The PXO brand mark. A white-label workspace that has set its own initials
     gets the gradient-square fallback instead. */
 export function logoMark(workspace) {

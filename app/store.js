@@ -12,20 +12,24 @@ const now = () => Date.now();
 
 /* --- Static catalogues (not user state) --------------------------------- */
 
+/* brand: a simple-icons slug rendered as #b-<slug>.
+   fb: a Lucide fallback for brands simple-icons no longer carries (Microsoft,
+   Slack and Twilio all had their marks removed at their own request). We show a
+   functional glyph in the brand colour rather than redrawing someone's logo. */
 export const CHANNEL_TYPES = [
-  { id: "website",   name: "Website",         group: "instant", mark: "WS", colour: "#7c3aed", req: "Embeddable widget, no account needed", setup: "2 minutes" },
-  { id: "whatsapp",  name: "WhatsApp",        group: "one",     mark: "WA", colour: "#25D366", req: "Meta Embedded Signup" },
-  { id: "messenger", name: "Messenger",       group: "one",     mark: "M",  colour: "#0084FF", req: "Facebook Login" },
-  { id: "instagram", name: "Instagram",       group: "one",     mark: "IG", colour: "#C13584", req: "Facebook Login" },
-  { id: "gmail",     name: "Gmail",           group: "one",     mark: "GM", colour: "#EA4335", req: "Google OAuth" },
-  { id: "outlook",   name: "Outlook",         group: "one",     mark: "OL", colour: "#0F6CBD", req: "Microsoft OAuth" },
-  { id: "telegram",  name: "Telegram",        group: "byo",     mark: "TG", colour: "#229ED9", req: "Bot token from @BotFather" },
-  { id: "line",      name: "LINE",            group: "byo",     mark: "LN", colour: "#06C755", req: "Channel secret + access token" },
-  { id: "discord",   name: "Discord",         group: "byo",     mark: "DC", colour: "#5865F2", req: "Bot token + application ID" },
-  { id: "teams",     name: "Microsoft Teams", group: "byo",     mark: "MT", colour: "#5059C9", req: "App ID + password" },
-  { id: "slack",     name: "Slack",           group: "byo",     mark: "SL", colour: "#611f69", req: "Bot token + signing secret" },
-  { id: "wechat",    name: "WeChat",          group: "byo",     mark: "WC", colour: "#07C160", req: "App ID + app secret" },
-  { id: "phone",     name: "Phone",           group: "num",     mark: "TW", colour: "#F22F46", req: "Twilio account + number" },
+  { id: "website",   name: "Website",         group: "instant", fb: "globe",  colour: "#0EA5A5", req: "Embeddable widget, no account needed", setup: "2 minutes" },
+  { id: "whatsapp",  name: "WhatsApp",        group: "one",  brand: "whatsapp",  colour: "#25D366", req: "Meta Embedded Signup" },
+  { id: "messenger", name: "Messenger",       group: "one",  brand: "messenger", colour: "#0866FF", req: "Facebook Login" },
+  { id: "instagram", name: "Instagram",       group: "one",  brand: "instagram", colour: "#FF0069", req: "Facebook Login" },
+  { id: "gmail",     name: "Gmail",           group: "one",  brand: "gmail",     colour: "#EA4335", req: "Google OAuth" },
+  { id: "outlook",   name: "Outlook",         group: "one",  fb: "mail",         colour: "#0F6CBD", req: "Microsoft OAuth" },
+  { id: "telegram",  name: "Telegram",        group: "byo",  brand: "telegram",  colour: "#26A5E4", req: "Bot token from @BotFather" },
+  { id: "line",      name: "LINE",            group: "byo",  brand: "line",      colour: "#00C300", req: "Channel secret + access token" },
+  { id: "discord",   name: "Discord",         group: "byo",  brand: "discord",   colour: "#5865F2", req: "Bot token + application ID" },
+  { id: "teams",     name: "Microsoft Teams", group: "byo",  fb: "users",        colour: "#5059C9", req: "App ID + password" },
+  { id: "slack",     name: "Slack",           group: "byo",  fb: "hash",         colour: "#611F69", req: "Bot token + signing secret" },
+  { id: "wechat",    name: "WeChat",          group: "byo",  brand: "wechat",    colour: "#07C160", req: "App ID + app secret" },
+  { id: "phone",     name: "Phone",           group: "num",  fb: "phone",        colour: "#0A84FF", req: "Twilio account + number" },
 ];
 
 export const CHANNEL_GROUPS = [
@@ -42,30 +46,30 @@ export const PROVIDER_KINDS = [
 ];
 
 export const MCP_CATALOG = [
-  { name: "GitHub",         cat: "developer tools",       desc: "Repositories, issues, pull requests and actions.", colour: "#181717", mark: "GH" },
-  { name: "Linear",         cat: "project management",    desc: "Issues, cycles and project tracking for software teams.", colour: "#5E6AD2", mark: "LI" },
-  { name: "Notion",         cat: "documents",             desc: "Pages, databases and wiki content.", colour: "#111", mark: "NO" },
-  { name: "Slack",          cat: "communication",         desc: "Post messages, read channels and search history.", colour: "#611f69", mark: "SL" },
-  { name: "Jira",           cat: "project management",    desc: "Issue tracking and agile boards.", colour: "#0052CC", mark: "JI" },
-  { name: "Salesforce",     cat: "CRM",                   desc: "Accounts, opportunities and contact records.", colour: "#00A1E0", mark: "SF" },
-  { name: "HubSpot",        cat: "CRM",                   desc: "Contacts, deals and marketing automation.", colour: "#FF7A59", mark: "HS" },
-  { name: "Stripe",         cat: "payments",              desc: "Customers, charges, subscriptions and invoices.", colour: "#635BFF", mark: "ST" },
-  { name: "Zendesk",        cat: "support",               desc: "Tickets, users and help centre articles.", colour: "#03363D", mark: "ZD" },
-  { name: "Airtable",       cat: "databases",             desc: "Bases, tables and records.", colour: "#18BFFF", mark: "AT" },
-  { name: "Google Drive",   cat: "documents",             desc: "Files, folders and shared drives.", colour: "#1FA463", mark: "GD" },
-  { name: "Gmail",          cat: "email",                 desc: "Read, search, draft and send mail.", colour: "#EA4335", mark: "GM" },
-  { name: "Asana",          cat: "project management",    desc: "Tasks, projects and portfolios.", colour: "#F06A6A", mark: "AS" },
-  { name: "Intercom",       cat: "support",               desc: "Conversations, contacts and help articles.", colour: "#1F8DED", mark: "IC" },
-  { name: "Calendly",       cat: "scheduling",            desc: "Event types, invitees and availability.", colour: "#006BFF", mark: "CA" },
-  { name: "Twilio",         cat: "communication",         desc: "SMS, voice and phone number management.", colour: "#F22F46", mark: "TW" },
-  { name: "Shopify",        cat: "commerce",              desc: "Products, orders, customers and inventory.", colour: "#96BF48", mark: "SH" },
-  { name: "1Password",      cat: "security & identity",   desc: "Password manager and digital vault for secure credential storage.", colour: "#0572EC", mark: "1P" },
-  { name: "AbuseIPDB",      cat: "security & identity",   desc: "Central repository for reporting and checking abusive IPs.", colour: "#C8262A", mark: "AB" },
-  { name: "ActiveCampaign", cat: "marketing automation",  desc: "Marketing automation and CRM for email campaigns.", colour: "#356AE6", mark: "AC" },
-  { name: "Ably",           cat: "developer tools",       desc: "Realtime messaging platform for live features.", colour: "#FF5416", mark: "AY" },
-  { name: "2chat",          cat: "communication",         desc: "Programmable API for WhatsApp and other text channels.", colour: "#1D4ED8", mark: "2C" },
-  { name: "Abstract",       cat: "developer tools",       desc: "APIs for validation, enrichment and data tasks.", colour: "#111827", mark: "AB" },
-  { name: "21risk",         cat: "business intelligence", desc: "Checklists, audits and compliance workflows.", colour: "#16A34A", mark: "21" },
+  { name: "GitHub",         cat: "developer tools",       desc: "Repositories, issues, pull requests and actions.", colour: "#181717", brand: "github", mark: "GH" },
+  { name: "Linear",         cat: "project management",    desc: "Issues, cycles and project tracking for software teams.", colour: "#5E6AD2", brand: "linear", mark: "LI" },
+  { name: "Notion",         cat: "documents",             desc: "Pages, databases and wiki content.", colour: "#111", brand: "notion", mark: "NO" },
+  { name: "Slack",          cat: "communication",         desc: "Post messages, read channels and search history.", colour: "#611f69", fb: "hash", mark: "SL" },
+  { name: "Jira",           cat: "project management",    desc: "Issue tracking and agile boards.", colour: "#0052CC", brand: "jira", mark: "JI" },
+  { name: "Salesforce",     cat: "CRM",                   desc: "Accounts, opportunities and contact records.", colour: "#00A1E0", fb: "cloud", mark: "SF" },
+  { name: "HubSpot",        cat: "CRM",                   desc: "Contacts, deals and marketing automation.", colour: "#FF7A59", brand: "hubspot", mark: "HS" },
+  { name: "Stripe",         cat: "payments",              desc: "Customers, charges, subscriptions and invoices.", colour: "#635BFF", brand: "stripe", mark: "ST" },
+  { name: "Zendesk",        cat: "support",               desc: "Tickets, users and help centre articles.", colour: "#03363D", brand: "zendesk", mark: "ZD" },
+  { name: "Airtable",       cat: "databases",             desc: "Bases, tables and records.", colour: "#18BFFF", brand: "airtable", mark: "AT" },
+  { name: "Google Drive",   cat: "documents",             desc: "Files, folders and shared drives.", colour: "#1FA463", brand: "googledrive", mark: "GD" },
+  { name: "Gmail",          cat: "email",                 desc: "Read, search, draft and send mail.", colour: "#EA4335", brand: "gmail", mark: "GM" },
+  { name: "Asana",          cat: "project management",    desc: "Tasks, projects and portfolios.", colour: "#F06A6A", brand: "asana", mark: "AS" },
+  { name: "Intercom",       cat: "support",               desc: "Conversations, contacts and help articles.", colour: "#1F8DED", brand: "intercom", mark: "IC" },
+  { name: "Calendly",       cat: "scheduling",            desc: "Event types, invitees and availability.", colour: "#006BFF", brand: "calendly", mark: "CA" },
+  { name: "Twilio",         cat: "communication",         desc: "SMS, voice and phone number management.", colour: "#F22F46", fb: "phone", mark: "TW" },
+  { name: "Shopify",        cat: "commerce",              desc: "Products, orders, customers and inventory.", colour: "#96BF48", brand: "shopify", mark: "SH" },
+  { name: "1Password",      cat: "security & identity",   desc: "Password manager and digital vault for secure credential storage.", colour: "#0572EC", brand: "1password", mark: "1P" },
+  { name: "AbuseIPDB",      cat: "security & identity",   desc: "Central repository for reporting and checking abusive IPs.", colour: "#C8262A", fb: "warn", mark: "AB" },
+  { name: "ActiveCampaign", cat: "marketing automation",  desc: "Marketing automation and CRM for email campaigns.", colour: "#356AE6", fb: "msg", mark: "AC" },
+  { name: "Ably",           cat: "developer tools",       desc: "Realtime messaging platform for live features.", colour: "#FF5416", fb: "activity", mark: "AY" },
+  { name: "2chat",          cat: "communication",         desc: "Programmable API for WhatsApp and other text channels.", colour: "#1D4ED8", fb: "msg", mark: "2C" },
+  { name: "Abstract",       cat: "developer tools",       desc: "APIs for validation, enrichment and data tasks.", colour: "#111827", brand: "abstract", mark: "AB" },
+  { name: "21risk",         cat: "business intelligence", desc: "Checklists, audits and compliance workflows.", colour: "#16A34A", fb: "check", mark: "21" },
 ];
 
 export const TEMPLATES = [

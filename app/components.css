@@ -311,3 +311,10 @@ body.is-narrow .logo { height: 22px; }
 .empty.empty--info > .icon { color: var(--accent); }
 .empty.empty--warn { border-left-color: var(--warn); background: var(--warn-soft); border-color: var(--warn-soft); border-left-color: var(--warn); }
 .empty.empty--warn > .icon { color: var(--warn); }
+
+/* Brand marks are filled glyphs, not stroked outlines like Lucide. */
+.brand-i { display: block; flex: none; }
+/* The tile mark holds a logo now, so it is a neutral well rather than a
+   coloured slab with initials in it. */
+.tile__mark { background: var(--well) !important; border: 1px solid var(--border); display: grid; place-items: center; }
+.convo__mark { background: var(--well); border: 1px solid var(--border); }

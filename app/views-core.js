@@ -5,7 +5,7 @@
 import * as S from "./store.js";
 import {
   h, frag, icon, n, money, ago, pageHead, empty, pill, btn, field, input, textarea,
-  select, toggle, choice, tabs, statStrip, group, card, modal, close, toast,
+  select, toggle, choice, tabs, statStrip, group, card, modal, close, toast, brandMark,
 } from "./ui.js";
 
 const go = (hash) => { location.hash = hash; };
@@ -374,7 +374,7 @@ export function Mcp() {
   const body = mcpTab === "mine"
     ? (mine.length
         ? h("div.tiles", {}, ...mine.map((m) => h("div.tile.is-live", {},
-            h("span.tile__mark", { style: { background: "var(--accent)" } }, m.name.slice(0, 2).toUpperCase()),
+            h("span.tile__mark", {}, brandMark(S.MCP_CATALOG.find((c) => c.name === m.name) || { fb: "blocks", colour: "var(--accent)" }, 20)),
             h("span", {}, h("span.tile__n", {}, m.name, pill("Active", "ok")),
               h("span.tile__r", {}, `${m.tools} tools available`)),
             h("button.tile__go", { onclick: () => { S.actions.removeMcp(m.id); toast("Disconnected " + m.name); } }, icon("close", 14)))))
@@ -391,7 +391,7 @@ export function Mcp() {
               const on = mine.some((m) => m.name === t.name);
               return h("button.tile" + (on ? ".is-live" : ""), {
                 onclick: () => { on ? toast(t.name + " already connected", "warn") : (S.actions.connectMcp(t.name), toast("Connected " + t.name)); } },
-                h("span.tile__mark", { style: { background: t.colour } }, t.mark),
+                h("span.tile__mark", {}, brandMark(t, 20)),
                 h("span", {}, h("span.tile__n", {}, t.name, on ? pill("On", "ok") : null),
                   h("span.tile__r", {}, t.desc)),
                 h("span.tile__go", {}, icon(on ? "check" : "arrow", 14)));
@@ -679,7 +679,7 @@ export function Channels() {
             if (on) { S.actions.removeChannel(live.find((c) => c.type === t.id).id); toast(t.name + " disconnected"); }
             else { S.actions.connectChannel(t.id); toast(t.name + " connected"); }
           } },
-          h("span.tile__mark", { style: { background: t.colour } }, t.mark),
+          h("span.tile__mark", {}, brandMark(t, 20)),
           h("span", {}, h("span.tile__n", {}, t.name, on ? pill("Live", "ok") : null), h("span.tile__r", {}, on ? "Answering with Master Agent" : t.req)),
           h("span.tile__go", {}, icon(on ? "check" : "arrow", 14)));
       })));
@@ -722,7 +722,7 @@ export function Inbox() {
   const items = h("div.split__list", {}, ...list.map((c) => {
     const def = S.CHANNEL_TYPES.find((t) => t.id === c.channel);
     return h("button.convo" + (c.id === selected ? ".is-on" : ""), { onclick: () => { selected = c.id; rerender(); } },
-      h("span.convo__mark", { style: { background: def ? def.colour : "var(--accent)" } }, def ? def.mark : "?"),
+      h("span.convo__mark", {}, brandMark(def || { fb: "msg" }, 17)),
       h("span.convo__b", {},
         h("span.convo__top", {}, h("span.convo__n", {}, c.contact), h("span.convo__t", {}, ago(c.at))),
         h("span.convo__p", {}, c.messages[c.messages.length - 1].text)));
@@ -731,7 +731,7 @@ export function Inbox() {
   const def = S.CHANNEL_TYPES.find((t) => t.id === convo.channel);
   const thread = h("div.split__pane", {},
     h("div.thread__head", {},
-      h("span.convo__mark", { style: { background: def ? def.colour : "var(--accent)" } }, def ? def.mark : "?"),
+      h("span.convo__mark", {}, brandMark(def || { fb: "msg" }, 17)),
       h("div", {}, h("p.row__name", {}, convo.contact), h("p.row__meta", {}, `${def ? def.name : convo.channel} · ${ago(convo.at)}`)),
       h("div.row__end", {}, pill("Resolved", "ok"), btn("Delete", { size: "sm", onClick: () => { S.update((st) => { st.conversations = st.conversations.filter((x) => x.id !== convo.id); }); selected = null; rerender(); } }))),
     h("div.thread__log", {}, ...convo.messages.map((m) => h("div.bubble" + (m.from === "user" ? ".is-user" : ".is-agent"), {}, m.text))),
