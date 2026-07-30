@@ -1,6 +1,8 @@
-# VoiceForge dashboard — redesign prototype
+# VoiceForge — redesigned platform
 
-Self-contained, no build step. Serve the folder and open `index.html`:
+A complete, working front end for the VoiceForge / Pixorama platform. Every
+screen from the live product, rebuilt on one design system, merged into a single
+app with real routing, real state and real interactions.
 
 ```bash
 python -m http.server 4780
@@ -8,11 +10,64 @@ python -m http.server 4780
 
 Then http://127.0.0.1:4780/index.html
 
-Query params (used by the verification scripts, handy for review):
-`?view=launch|live` and `?theme=light|dark`.
+`?theme=light|dark` forces a theme. `?reset=1` wipes the store back to seed.
 
-The floating control bottom-right switches between the two states. The sun icon
-in the topbar toggles the theme.
+---
+
+## What "working" means here
+
+Everything in the interface works: routing, forms, modals, the six-step wizard,
+search and filters, the test chat, live theming. State lives in one store,
+persists to localStorage, and propagates across screens — connect a channel and
+the dashboard changes state, the inbox fills, usage starts metering and the
+setup checklist ticks over.
+
+What it does **not** do is talk to your backend. There is no Node gateway, no
+Python services, no Supabase, Twilio or Composio behind it. The store simulates
+them. Swapping `app/store.js` for real API calls is the porting job.
+
+---
+
+## Screens
+
+| Route | Screen |
+|---|---|
+| `#/` | Dashboard — launch state until traffic exists, operating state after |
+| `#/knowledge` | Corpus bar, source cards, thin-extraction diagnosis, add-source modal |
+| `#/mcp` | My servers + 24-tool catalogue with search and category filter |
+| `#/agents` | Agent list |
+| `#/agents/new` | Template picker, then the six-step wizard |
+| `#/agents/:id` | Edit an existing agent through the same wizard |
+| `#/channels` | 13 channels grouped by setup cost |
+| `#/inbox` | Split list and thread, reply as the agent |
+| `#/providers` | Capability coverage, provider records, add-provider modal |
+| `#/users` | Team table, invite modal, activate/deactivate |
+| `#/plans` | Plan cards, assignment, quota enforcement |
+| `#/usage` | Cost by service, cost per conversation |
+| `#/settings` | Models, branding (live accent), channels, connectors, Composio |
+
+---
+
+## Architecture
+
+```
+index.html          shell + icon sprite
+styles.css          design tokens + page patterns
+app/components.css  shared components
+app/store.js        state, seed data, derived readings, actions
+app/ui.js           hyperscript + shared blocks (pageHead, empty, card, modal, toast)
+app/views-core.js   Dashboard, Knowledge, MCP, Agents, Channels, Inbox
+app/views-admin.js  Providers, Users, Plans, Usage, Settings
+app/main.js         shell, nav, hash router
+```
+
+No build step, no framework. ES modules and one vendored copy of GSAP.
+
+The rule that keeps it coherent: **no screen holds its own copy of anything.**
+Every number is derived from the store, so the dashboard, the plan card and the
+usage page cannot disagree.
+
+---
 
 ---
 
