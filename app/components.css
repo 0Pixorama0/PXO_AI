@@ -57,7 +57,9 @@ a { color: inherit; text-decoration: none; }
 .swatch:hover { transform: translateY(-2px); }
 .swatch.is-on { border-color: var(--text); }
 
-.tabs__n { font-family: var(--mono); font-size: 10px; opacity: 0.65; margin-left: 2px; }
+/* JetBrains Mono's dotted zero reads as an 8 below 11px: "1,000" became
+   "1,888" in the catalogue tab. Never set a mono label under --t-micro. */
+.tabs__n { font-family: var(--mono); font-size: var(--t-micro); opacity: 0.65; margin-left: 3px; }
 
 /* --- Selectable cards (the wizard pattern, kept) ------------------------ */
 
@@ -171,11 +173,11 @@ a { color: inherit; text-decoration: none; }
 .convo { display: flex; gap: var(--s-3); text-align: left; padding: var(--s-3); border-radius: var(--r-md); border: 1px solid transparent; transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease); }
 .convo:hover { background: var(--well); }
 .convo.is-on { background: var(--accent-soft); border-color: var(--accent-line); }
-.convo__mark { flex: none; width: 30px; height: 30px; border-radius: var(--r-sm); display: grid; place-items: center; color: #fff; font-size: 10px; font-weight: 800; }
+.convo__mark { flex: none; width: 30px; height: 30px; border-radius: var(--r-sm); display: grid; place-items: center; }
 .convo__b { flex: 1; min-width: 0; }
 .convo__top { display: flex; align-items: baseline; gap: var(--s-3); }
 .convo__n { font-size: var(--t-sm); font-weight: 700; letter-spacing: -0.01em; }
-.convo__t { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--text-3); }
+.convo__t { margin-left: auto; font-family: var(--mono); font-size: var(--t-micro); color: var(--text-3); }
 .convo__p { display: block; margin-top: 2px; font-size: var(--t-xs); color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .thread__head { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-4) var(--s-5); border-bottom: 1px solid var(--border); }
@@ -318,3 +320,93 @@ body.is-narrow .logo { height: 22px; }
    coloured slab with initials in it. */
 .tile__mark { background: var(--well) !important; border: 1px solid var(--border); display: grid; place-items: center; }
 .convo__mark { background: var(--well); border: 1px solid var(--border); }
+
+/* =========================================================================
+   AGENTS — the master/sub-agent hierarchy, shown as a hierarchy.
+   A sub-agent is not a sibling of the master; it is something the master
+   calls. The old flat list said the opposite of the page's own headline.
+   ========================================================================= */
+
+.agent {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.agent + .agent { margin-top: var(--s-5); }
+.agent.is-master { border-color: var(--accent-line); }
+
+.agent__head { display: flex; align-items: flex-start; gap: var(--s-4); padding: var(--s-6); }
+.agent__av {
+  flex: none; width: 42px; height: 42px; border-radius: var(--r-md);
+  display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent);
+}
+.agent.is-sub .agent__av { background: var(--well); color: var(--text-2); border: 1px solid var(--border); }
+
+.agent__id { flex: 1; min-width: 0; }
+.agent__top { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+.agent__n { font-size: var(--t-lg); font-weight: 800; letter-spacing: -0.03em; }
+.agent__d { margin-top: var(--s-2); max-width: 62ch; font-size: var(--t-sm); line-height: 1.6; color: var(--text-2); }
+.agent__acts { display: flex; gap: var(--s-2); flex: none; }
+
+.agent__grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: var(--s-5);
+  padding: 0 var(--s-6) var(--s-6);
+}
+.agent__v { margin-top: 4px; font-size: var(--t-sm); font-weight: 700; letter-spacing: -0.01em; }
+
+/* Where it actually answers — the thing an operator opens this page for. */
+.deployed { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; margin-top: 5px; }
+.deployed__m {
+  width: 24px; height: 24px; border-radius: var(--r-xs);
+  background: var(--well); border: 1px solid var(--border);
+  display: grid; place-items: center;
+}
+.deployed__none { font-size: var(--t-sm); color: var(--warn); font-weight: 700; }
+
+/* Routing block: the sub-agents live inside the master, because that is the
+   only place they exist. */
+.routes { border-top: 1px solid var(--border); background: var(--well); padding: var(--s-5) var(--s-6) var(--s-6); }
+.routes__h { display: flex; align-items: baseline; gap: var(--s-3); margin-bottom: var(--s-4); }
+.routes__t { font-size: var(--t-sm); font-weight: 800; letter-spacing: -0.015em; }
+.routes__d { font-size: var(--t-xs); color: var(--text-3); }
+
+.route {
+  position: relative;
+  display: flex; align-items: center; gap: var(--s-4);
+  margin-left: var(--s-6);
+  padding: var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  transition: border-color var(--dur-fast) var(--ease);
+}
+.route + .route { margin-top: var(--s-3); }
+.route:hover { border-color: var(--border-2); }
+
+/* the connector that makes "calls into" visible */
+.route::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--s-6) * -1);
+  top: -50%;
+  bottom: 50%;
+  width: calc(var(--s-6) - 6px);
+  border-left: 1px solid var(--border-2);
+  border-bottom: 1px solid var(--border-2);
+  border-bottom-left-radius: var(--r-sm);
+}
+.route:first-child::before { top: calc(var(--s-4) * -1); }
+
+.route__i { flex: none; width: 30px; height: 30px; border-radius: var(--r-sm); display: grid; place-items: center; background: var(--well); border: 1px solid var(--border); color: var(--text-2); }
+.route__b { flex: 1; min-width: 0; }
+.route__n { font-size: var(--t-sm); font-weight: 800; letter-spacing: -0.015em; display: flex; align-items: center; gap: var(--s-2); }
+.route__d { margin-top: 2px; font-size: var(--t-xs); color: var(--text-3); line-height: 1.5; }
+.route__acts { display: flex; gap: var(--s-2); flex: none; }
+
+.routes__add { margin-left: var(--s-6); margin-top: var(--s-3); }
+
+/* The grid is a subset of a much larger catalogue; say so rather than
+   implying the visible count is the total. */
+.subsetnote { margin-bottom: var(--s-4); font-size: var(--t-xs); color: var(--text-3); }

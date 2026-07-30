@@ -45,6 +45,11 @@ export const PROVIDER_KINDS = [
   { id: "embed", name: "Embeddings",     blurb: "Indexes and retrieves knowledge",   options: ["text-embedding-3-large", "Cohere embed-v3", "Voyage 3"] },
 ];
 
+/* Composio hosts roughly a thousand tool servers. What follows is the popular
+   subset we render locally; a real search queries the full catalogue server-side.
+   Claiming MCP_CATALOG.length as the total would understate it by 40x. */
+export const MCP_TOTAL = 1000;
+
 export const MCP_CATALOG = [
   { name: "GitHub",         cat: "developer tools",       desc: "Repositories, issues, pull requests and actions.", colour: "#181717", brand: "github", mark: "GH" },
   { name: "Linear",         cat: "project management",    desc: "Issues, cycles and project tracking for software teams.", colour: "#5E6AD2", brand: "linear", mark: "LI" },
@@ -141,9 +146,9 @@ function seed() {
 
     conversations: [],
     notifications: [
-      { id: "n-1", text: "India_Wiki finished indexing — 310 chunks", when: now() - 7100e3, read: false },
-      { id: "n-2", text: "PROP EQUITY finished indexing — 152 chunks", when: now() - 7000e3, read: false },
-      { id: "n-3", text: "No plan assigned — quotas are not being enforced", when: now() - 3600e3, read: false },
+      { id: "n-1", text: "India_Wiki finished indexing. 310 chunks.", when: now() - 7100e3, read: false },
+      { id: "n-2", text: "PROP EQUITY finished indexing. 152 chunks.", when: now() - 7000e3, read: false },
+      { id: "n-3", text: "No plan assigned, so quotas are not being enforced.", when: now() - 3600e3, read: false },
     ],
   };
 }
@@ -236,7 +241,7 @@ export const actions = {
       k.chunks = Math.round(pages * (3 + Math.random() * 9));
       k.status = "ready";
       k.synced = now();
-      s.notifications.unshift({ id: "n-" + uid(), text: `${name} finished indexing — ${k.chunks} chunks`, when: now(), read: false });
+      s.notifications.unshift({ id: "n-" + uid(), text: `${name} finished indexing. ${k.chunks} chunks.`, when: now(), read: false });
     }), 2600);
     return id;
   },

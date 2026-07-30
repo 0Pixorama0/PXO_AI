@@ -243,7 +243,7 @@ export function Knowledge() {
     h("div.corpus__bar", {},
       ...segs.map((g) => h("div.corpus__seg", {
         style: { flex: String(Math.max(g.k.chunks, 1)), background: g.grad, transform: "scaleX(1)" },
-        title: `${g.k.name} — ${g.k.chunks} chunks` })),
+        title: `${g.k.name}, ${g.k.chunks} chunks` })),
       h("div.corpus__seg.corpus__seg--rest", { style: { flex: "0 0 72px", transform: "scaleX(1)" }, title: "Add another source",
         onclick: addSourceModal })),
     h("div.corpus__legend", {},
@@ -383,9 +383,13 @@ export function Mcp() {
     : frag(
         h("div.ktools", {},
           h("label.field", {}, icon("search", 15),
-            h("input", { type: "search", value: mcpQuery, placeholder: "Search tools",
+            h("input", { type: "search", value: mcpQuery, placeholder: `Search all ${n(S.MCP_TOTAL)} tools`,
               oninput: (e) => { mcpQuery = e.target.value; rerender(); } })),
           select(cats, mcpCat, (v) => { mcpCat = v; rerender(); })),
+        h("p.subsetnote", {},
+          mcpQuery || mcpCat !== "All"
+            ? `${list.length} of the ${S.MCP_CATALOG.length} popular tools match. Full-catalogue search runs server-side.`
+            : `Showing the ${S.MCP_CATALOG.length} most-used of ${n(S.MCP_TOTAL)}. Search to reach the rest.`),
         list.length
           ? h("div.tiles", {}, ...list.map((t) => {
               const on = mine.some((m) => m.name === t.name);
@@ -401,12 +405,12 @@ export function Mcp() {
   return frag(
     pageHead({
       eyebrowIcon: "blocks", eyebrow: `MCP · ${mine.length} connected`,
-      accentWord: String(S.MCP_CATALOG.length), rest: "tools your agents can call.",
-      sub: "Model Context Protocol servers let an agent take real actions: open a ticket, look up an order, post a message. Connect once and attach per agent.",
+      accentWord: n(S.MCP_TOTAL), rest: "tools your agents can call.",
+      sub: `Model Context Protocol servers let an agent take real actions: open a ticket, look up an order, post a message. Connect once and attach per agent. The ${S.MCP_CATALOG.length} most-used are listed below, and search covers the full catalogue.`,
     }),
     h("div.ktools", {},
       tabs([{ id: "mine", label: "My servers", icon: "plug", count: mine.length },
-            { id: "catalog", label: "Tool catalog", icon: "zap", count: S.MCP_CATALOG.length }],
+            { id: "catalog", label: "Tool catalog", icon: "blocks", count: n(S.MCP_TOTAL) }],
         mcpTab, (id) => { mcpTab = id; rerender(); })),
     body);
 }
@@ -417,36 +421,78 @@ export function Mcp() {
 
 export function Agents() {
   const s = S.get();
+  const master = s.agents.find((a) => a.master);
+  const subs = s.agents.filter((a) => !a.master);
+
   return frag(
     pageHead({
       eyebrowIcon: "bot", eyebrow: `Agents · ${s.agents.length}`,
       accentWord: "One", rest: "identity, every channel.",
       sub: "The master agent is what customers meet. Sub-agents are specialists it calls as tools, not separate bots you deploy.",
-      actions: btn("Create agent", { kind: "accent", icon: "plus", onClick: () => go("#/agents/new") }),
+      actions: btn("Create sub-agent", { kind: "accent", icon: "plus", onClick: () => go("#/agents/new") }),
     }),
-    h("div.sources", {}, ...s.agents.map(agentRow)));
+    master ? masterCard(master, subs) : empty("No master agent", "One is provisioned automatically at signup."));
 }
 
-function agentRow(a) {
-  const kn = S.get().knowledge.filter((k) => a.knowledge.includes(k.id));
-  return h("article.src", {},
-    h("span.src__mark", {}, icon("bot", 18)),
-    h("div", {},
-      h("div.src__top", {},
-        h("h2.src__name", {}, a.name),
-        a.master ? pill("Master", "accent") : pill("Sub-agent"),
-        pill(a.status === "active" ? "Active" : "Paused", a.status === "active" ? "ok" : "warn")),
-      h("p.src__url", {}, a.desc),
-      h("div.src__facts", {},
-        fact("Tone", a.tone), fact("Length", a.len), fact("Mode", a.mode),
-        fact("Knowledge", kn.length ? kn.map((k) => k.name).join(", ") : "None"),
-        fact("Tools", a.tools.length ? String(a.tools.length) : "None"))),
-    h("div.src__side", {},
-      h("span.label", {}, "Created " + ago(a.created)),
-      h("div.src__acts", {},
+/** The master owns the page. Sub-agents live inside it, because that is the
+    only place they exist — they are reachable as a tool call, not deployed. */
+function masterCard(a, subs) {
+  const st = S.get();
+  const live = S.derive.liveChannels();
+  const kn = st.knowledge.filter((k) => a.knowledge.includes(k.id));
+
+  return h("article.agent.is-master", {},
+    h("div.agent__head", {},
+      h("span.agent__av", {}, icon("bot", 22)),
+      h("div.agent__id", {},
+        h("div.agent__top", {},
+          h("h2.agent__n", {}, a.name),
+          pill("Master", "accent"),
+          pill(a.status === "active" ? "Active" : "Paused", a.status === "active" ? "ok" : "warn", true)),
+        h("p.agent__d", {}, a.desc)),
+      h("div.agent__acts", {},
         btn("Test", { size: "sm", onClick: () => testModal(a) }),
-        btn("Edit", { size: "sm", onClick: () => go("#/agents/" + a.id) }),
-        a.master ? null : btn("Delete", { size: "sm", onClick: () => { S.actions.removeAgent(a.id); toast("Deleted " + a.name); } }))));
+        btn("Edit", { kind: "accent", size: "sm", onClick: () => go("#/agents/" + a.id) }))),
+
+    h("div.agent__grid", {},
+      metaCell("Persona", `${a.tone} · ${a.len}`),
+      metaCell("Mode", a.mode),
+      metaCell("Language", a.lang),
+      h("div", {}, h("p.label", {}, "Knowledge"),
+        h("p.agent__v", {}, kn.length ? `${kn.length} source${kn.length === 1 ? "" : "s"} · ${n(kn.reduce((x, k) => x + k.chunks, 0))} chunks` : "None attached")),
+      h("div", {}, h("p.label", {}, "Answering on"),
+        live.length
+          ? h("div.deployed", {}, ...live.map((c) => {
+              const def = S.CHANNEL_TYPES.find((t) => t.id === c.type);
+              return h("span.deployed__m", { title: def.name }, brandMark(def, 15));
+            }))
+          : h("p.deployed__none", {}, "No channel yet"))),
+
+    h("div.routes", {},
+      h("div.routes__h", {},
+        h("h3.routes__t", {}, subs.length ? `Routes to ${subs.length} specialist${subs.length === 1 ? "" : "s"}` : "No specialists yet"),
+        h("p.routes__d", {}, subs.length
+          ? "The master calls these as tools mid-conversation. Customers never address them directly."
+          : "Add one when a topic needs its own instructions or its own tools.")),
+      ...subs.map(routeRow),
+      h("div.routes__add", {}, btn("Add a specialist", { size: "sm", icon: "plus", onClick: () => go("#/agents/new") }))));
+}
+
+const metaCell = (label, v) => h("div", {}, h("p.label", {}, label), h("p.agent__v", {}, v));
+
+function routeRow(a) {
+  const kn = S.get().knowledge.filter((k) => a.knowledge.includes(k.id));
+  return h("div.route", {},
+    h("span.route__i", {}, icon("bot", 15)),
+    h("div.route__b", {},
+      h("p.route__n", {}, a.name,
+        pill(a.status === "active" ? "Active" : "Paused", a.status === "active" ? "ok" : "warn")),
+      h("p.route__d", {}, a.desc + " ",
+        `Speaks ${a.tone.toLowerCase()}, answers ${a.len.toLowerCase()}${kn.length ? `, cites ${kn.map((k) => k.name).join(" and ")}` : ", cites nothing yet"}.`)),
+    h("div.route__acts", {},
+      btn("Test", { size: "sm", onClick: () => testModal(a) }),
+      btn("Edit", { size: "sm", onClick: () => go("#/agents/" + a.id) }),
+      btn("Delete", { size: "sm", onClick: () => { S.actions.removeAgent(a.id); toast("Deleted " + a.name); } })));
 }
 
 /* --- The 6-step wizard --------------------------------------------------- */
