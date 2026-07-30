@@ -77,6 +77,19 @@ export const MCP_CATALOG = [
   { name: "21risk",         cat: "business intelligence", desc: "Checklists, audits and compliance workflows.", colour: "#16A34A", fb: "check", mark: "21" },
 ];
 
+export const CONNECTORS = [
+  { id: "gdrive",     name: "Google Drive", brand: "googledrive", colour: "#4285F4" },
+  { id: "onedrive",   name: "OneDrive",     fb: "cloud",  colour: "#0F6CBD" },
+  { id: "sharepoint", name: "SharePoint",   fb: "file",   colour: "#036C70" },
+  { id: "notion",     name: "Notion",       brand: "notion",     colour: "#000000" },
+  { id: "confluence", name: "Confluence",   fb: "book",   colour: "#172B4D" },
+  { id: "dropbox",    name: "Dropbox",      fb: "cloud",  colour: "#0061FF" },
+  { id: "slack",      name: "Slack",        fb: "hash",   colour: "#611F69" },
+  { id: "gmail",      name: "Gmail",        brand: "gmail",      colour: "#EA4335" },
+  { id: "airtable",   name: "Airtable",     brand: "airtable",   colour: "#18BFFF" },
+  { id: "zendesk",    name: "Zendesk",      brand: "zendesk",    colour: "#03363D" },
+];
+
 export const TEMPLATES = [
   { id: "support",   name: "Customer Support", desc: "Answers questions from your knowledge base and escalates when it cannot help.", tone: "Friendly",     len: "Balanced" },
   { id: "lead",      name: "Lead Qualifier",   desc: "Asks qualifying questions, captures contact details and books a follow up.",   tone: "Professional", len: "Short" },
@@ -144,6 +157,7 @@ function seed() {
     ],
     activePlan: null,
 
+    connections: [],   // connector ids the user has granted OAuth to
     conversations: [],
     notifications: [
       { id: "n-1", text: "India_Wiki finished indexing. 310 chunks.", when: now() - 7100e3, read: false },
@@ -185,6 +199,11 @@ export function reset() {
 
 export const derive = {
   chunks: () => state.knowledge.reduce((a, k) => a + k.chunks, 0),
+
+  /** Which agents can actually cite a given source. A source no agent cites is
+      indexed storage nobody can reach — the page used to hardcode this. */
+  agentsFor: (sourceId) => state.agents.filter((a) => a.knowledge.includes(sourceId)),
+  orphanSources: () => state.knowledge.filter((k) => derive.agentsFor(k.id).length === 0),
   pages:  () => state.knowledge.reduce((a, k) => a + k.pages, 0),
   liveChannels: () => state.channels.filter((c) => c.status === "active"),
   hasTraffic:   () => state.conversations.length > 0,
@@ -252,6 +271,24 @@ export const actions = {
       const k = s.knowledge.find((x) => x.id === id);
       if (k) { k.status = "ready"; k.synced = now(); }
     }), 1800);
+  },
+
+  toggleConnector(id) {
+    update((s) => {
+      s.connections = s.connections.includes(id)
+        ? s.connections.filter((c) => c !== id)
+        : [...s.connections, id];
+    });
+  },
+
+  attachSource(agentId, sourceId) {
+    update((s) => {
+      const a = s.agents.find((x) => x.id === agentId);
+      if (!a) return;
+      a.knowledge = a.knowledge.includes(sourceId)
+        ? a.knowledge.filter((x) => x !== sourceId)
+        : [...a.knowledge, sourceId];
+    });
   },
 
   removeKnowledge(id) {

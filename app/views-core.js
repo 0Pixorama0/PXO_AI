@@ -227,6 +227,10 @@ export function Knowledge() {
   const totalChunks = S.derive.chunks();
   const ready = list.filter((k) => k.status === "ready").length;
   const processing = list.filter((k) => k.status === "processing").length;
+  const failed = list.filter((k) => k.status === "failed").length;
+  const orphans = S.derive.orphanSources();
+  const q = kQuery.trim().toLowerCase();
+  const shown = q ? list.filter((k) => (k.name + " " + (k.url || "")).toLowerCase().includes(q)) : list;
 
   const segs = list.map((k, i) => ({
     k, pct: totalChunks ? (k.chunks / totalChunks) * 100 : 0,
@@ -262,32 +266,71 @@ export function Knowledge() {
       actions: btn("Add source", { kind: "accent", icon: "plus", onClick: addSourceModal }),
     }),
     list.length ? corpus : null,
+    orphans.length
+      ? empty(
+          `${orphans.length} source${orphans.length === 1 ? " is" : "s are"} indexed but unreachable`,
+          `No agent cites ${orphans.length === 1 ? orphans[0].name : "them"}, so ${orphans.length === 1 ? "it" : "they"} cost storage and answer nothing. Attach ${orphans.length === 1 ? "it" : "them"} to an agent, or remove ${orphans.length === 1 ? "it" : "them"}.`,
+          btn("Attach to Master Agent", { kind: "accent", size: "sm", onClick: () => {
+            const m = S.get().agents.find((a) => a.master);
+            orphans.forEach((k) => S.actions.attachSource(m.id, k.id));
+            toast(`Attached ${orphans.length} source${orphans.length === 1 ? "" : "s"}`);
+          } }),
+          { tone: "warn" })
+      : null,
     statStrip([
       { label: "Ready", value: ready }, { label: "Processing", value: processing },
-      { label: "Failed", value: 0 }, { label: "Pages crawled", value: S.derive.pages() },
+      { label: "Failed", value: failed }, { label: "Pages crawled", value: S.derive.pages() },
     ]),
     h("div.ktools", {},
-      tabs([{ id: "sources", label: "Sources", icon: "book" }, { id: "conn", label: "My connections", icon: "plug" }],
-        "sources", () => toast("Connections are configured in Settings")),
-      h("label.field", {}, icon("search", 15),
-        h("input", { type: "search", placeholder: "Search by URL, filename, or label", oninput: (e) => filterSources(e.target.value) })),
-      btn("Sync all", { size: "sm", icon: "sync", onClick: () => { list.forEach((k) => S.actions.resync(k.id)); toast("Re-syncing every source"); } })),
-    list.length
-      ? h("div.sources#sources", {}, ...list.map(sourceCard))
-      : empty("No knowledge sources yet", "Agents fall back to the model's own training without them, which is where wrong answers come from.",
-              btn("Add your first source", { kind: "accent", onClick: addSourceModal })));
+      tabs([{ id: "sources", label: "Sources", icon: "book", count: list.length },
+            { id: "conn", label: "Connections", icon: "plug", count: s.connections.length }],
+        kTab, (id) => { kTab = id; rerender(); }),
+      kTab === "sources"
+        ? h("label.field", {}, icon("search", 15),
+            h("input", { type: "search", value: kQuery, placeholder: "Search by name or URL",
+              oninput: (e) => { kQuery = e.target.value; rerender(); } }))
+        : null,
+      kTab === "sources"
+        ? btn("Sync all", { size: "sm", icon: "sync", onClick: () => { list.forEach((k) => S.actions.resync(k.id)); toast("Re-syncing every source"); } })
+        : null),
+    kTab === "conn" ? connectionsPanel() : sourcesPanel(list, shown));
 }
 
-function filterSources(q) {
-  const host = document.querySelector("#sources");
-  if (!host) return;
-  const needle = q.trim().toLowerCase();
-  [...host.children].forEach((el) => {
-    el.style.display = !needle || el.textContent.toLowerCase().includes(needle) ? "" : "none";
-  });
+function sourcesPanel(all, shown) {
+  if (!all.length) {
+    return empty("No knowledge sources yet",
+      "Agents fall back to the model's own training without them, which is where wrong answers come from.",
+      btn("Add your first source", { kind: "accent", onClick: addSourceModal }));
+  }
+  if (!shown.length) {
+    return empty("Nothing matches that search", `No source name or URL contains "${kQuery}".`,
+      btn("Clear search", { size: "sm", onClick: () => { kQuery = ""; rerender(); } }), { icon: "search" });
+  }
+  return frag(
+    kQuery ? h("p.subsetnote", {}, `${shown.length} of ${all.length} sources match.`) : null,
+    h("div.sources", {}, ...shown.map(sourceCard)));
+}
+
+/** The ten OAuth document connectors. Previously this tab only raised a toast. */
+function connectionsPanel() {
+  const on = S.get().connections;
+  return frag(
+    h("p.subsetnote", {}, on.length
+      ? `${on.length} connected. Sources can be pulled from any of these without a crawl.`
+      : "Connect an account and its documents become available as knowledge sources, kept in sync automatically."),
+    h("div.tiles", {}, ...S.CONNECTORS.map((c) => {
+      const live = on.includes(c.id);
+      return h("button.tile" + (live ? ".is-live" : ""), {
+        onclick: () => { S.actions.toggleConnector(c.id); toast(live ? `Disconnected ${c.name}` : `${c.name} connected`); } },
+        h("span.tile__mark", {}, brandMark(c, 20)),
+        h("span", {}, h("span.tile__n", {}, c.name, live ? pill("Connected", "ok") : null),
+          h("span.tile__r", {}, live ? "Documents available as sources" : "Not connected")),
+        h("span.tile__go", {}, icon(live ? "check" : "arrow", 14)));
+    })));
 }
 
 function sourceCard(k) {
+  const cites = S.derive.agentsFor(k.id);
   const total = S.derive.chunks() || 1;
   const pct = (k.chunks / total) * 100;
   const density = k.pages ? k.chunks / k.pages : 0;
@@ -300,14 +343,15 @@ function sourceCard(k) {
         h("h2.src__name", {}, k.name),
         k.status === "ready" ? pill("Ready", "ok") : pill("Indexing", "warn"),
         pill(k.type === "web" ? "Web crawl" : "File"),
-        thin ? pill("Thin extraction", "warn") : null),
+        thin ? pill("Thin extraction", "warn") : null,
+        cites.length ? null : pill("Unattached", "warn")),
       h("p.src__url", {}, k.url || "—"),
       h("div.src__facts", {},
         fact("Chunks", n(k.chunks)),
         fact("Pages", n(k.pages)),
         fact("Density", k.pages ? density.toFixed(1) + " / page" : "—", thin),
         fact("Last synced", ago(k.synced)),
-        fact("Attached to", "Master Agent")),
+        fact("Cited by", cites.length ? cites.map((a) => a.name).join(", ") : "No agent", !cites.length)),
       thin ? h("div.flag", {},
         icon("alert", 15),
         h("div", {},
@@ -319,6 +363,12 @@ function sourceCard(k) {
     h("div.src__side", {},
       h("span.label", {}, pct.toFixed(1) + "% of corpus"),
       h("div.src__acts", {},
+        cites.length
+          ? null
+          : btn("Attach", { kind: "accent", size: "sm", onClick: () => {
+              const m = S.get().agents.find((a) => a.master);
+              S.actions.attachSource(m.id, k.id); toast(`${k.name} attached to ${m.name}`);
+            } }),
         btn("Resync", { size: "sm", onClick: () => { S.actions.resync(k.id); toast("Re-syncing " + k.name); } }),
         btn("Remove", { size: "sm", onClick: () => { S.actions.removeKnowledge(k.id); toast("Removed " + k.name); } }))));
 }
@@ -357,6 +407,9 @@ function addSourceModal() {
 /* =========================================================================
    MCP TOOLS
    ========================================================================= */
+
+let kTab = "sources";
+let kQuery = "";
 
 let mcpTab = "catalog";
 let mcpQuery = "";

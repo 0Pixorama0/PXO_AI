@@ -410,3 +410,10 @@ body.is-narrow .logo { height: 22px; }
 /* The grid is a subset of a much larger catalogue; say so rather than
    implying the visible count is the total. */
 .subsetnote { margin-bottom: var(--s-4); font-size: var(--t-xs); color: var(--text-3); }
+
+/* Source actions are permanent. Hover-only hid the one control an unattached
+   source needs, and gave touch users nothing at all. */
+.src__acts { opacity: 1 !important; transform: none !important; }
+
+/* The stat strip sat flush against the toolbar below it. */
+.kstrip { margin-bottom: var(--s-7); }
