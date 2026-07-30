@@ -417,3 +417,64 @@ body.is-narrow .logo { height: 22px; }
 
 /* The stat strip sat flush against the toolbar below it. */
 .kstrip { margin-bottom: var(--s-7); }
+
+/* =========================================================================
+   AGENTS — list and detail. Flat: the master is marked with a pill, not
+   nested around the others. Nesting made specialists hard to find and act on.
+   ========================================================================= */
+
+.arow {
+  display: flex; align-items: center; gap: var(--s-3); text-align: left;
+  padding: var(--s-3);
+  border: 1px solid transparent; border-radius: var(--r-md);
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.arow:hover { background: var(--well); }
+.arow.is-on { background: var(--accent-soft); border-color: var(--accent-line); }
+.arow__av {
+  flex: none; width: 32px; height: 32px; border-radius: var(--r-sm);
+  display: grid; place-items: center;
+  background: var(--well); border: 1px solid var(--border); color: var(--text-2);
+}
+.arow__av.is-master { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+.arow__b { flex: 1; min-width: 0; }
+.arow__top { display: flex; align-items: center; gap: var(--s-2); }
+.arow__n { font-size: var(--t-sm); font-weight: 800; letter-spacing: -0.015em; }
+.arow__m { display: block; margin-top: 2px; font-size: var(--t-xs); color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.adet { padding: 0; }
+.adet__head { display: flex; align-items: flex-start; gap: var(--s-4); padding: var(--s-6); border-bottom: 1px solid var(--border); }
+.adet__n { font-size: var(--t-lg); font-weight: 800; letter-spacing: -0.03em; }
+.adet__d { margin-top: var(--s-2); font-size: var(--t-sm); line-height: 1.6; color: var(--text-2); }
+
+.adet__stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  border-bottom: 1px solid var(--border);
+}
+.adet__stats > div { padding: var(--s-5); border-left: 1px solid var(--border); }
+.adet__stats > div:first-child { border-left: 0; }
+.adet__sv { margin-top: 5px; font-size: var(--t-xl); font-weight: 800; letter-spacing: -0.038em; }
+
+.adet__s { padding: var(--s-5) var(--s-6); border-bottom: 1px solid var(--border); }
+.adet__st { display: block; margin-bottom: var(--s-3); }
+.adet__note { font-size: var(--t-sm); color: var(--text-2); line-height: 1.6; }
+.adet__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: var(--s-5); }
+
+.adet__pre {
+  margin: 0; padding: var(--s-4);
+  background: var(--well); border: 1px solid var(--border); border-radius: var(--r-md);
+  font-family: var(--mono); font-size: var(--t-micro); line-height: 1.7; color: var(--text-2);
+  white-space: pre-wrap; max-height: 190px; overflow-y: auto;
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px var(--s-3);
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  font-size: var(--t-xs); font-weight: 700; letter-spacing: -0.01em;
+}
+.chip .icon { color: var(--text-3); }
+.chip__n { font-family: var(--mono); font-size: var(--t-micro); color: var(--text-3); font-weight: 500; }
+
+.adet__foot { padding: var(--s-5) var(--s-6); }

@@ -472,81 +472,97 @@ export function Mcp() {
    AGENTS
    ========================================================================= */
 
+let agentSel = null;
+
 export function Agents() {
-  const s = S.get();
-  const master = s.agents.find((a) => a.master);
-  const subs = s.agents.filter((a) => !a.master);
+  const st = S.get();
+  const list = st.agents;
+  const master = list.find((a) => a.master);
+
+  if (!agentSel || !list.some((a) => a.id === agentSel)) agentSel = (master || list[0])?.id;
+  const sel = list.find((a) => a.id === agentSel);
+
+  const rows = h("div.split__list", {}, ...list.map((a) => {
+    const s = S.derive.statsFor(a.id);
+    const count = a.master ? s.handled : s.routed;
+    return h("button.arow" + (a.id === agentSel ? ".is-on" : ""), { onclick: () => { agentSel = a.id; rerender(); } },
+      h("span.arow__av" + (a.master ? ".is-master" : ""), {}, icon("bot", 16)),
+      h("span.arow__b", {},
+        h("span.arow__top", {},
+          h("span.arow__n", {}, a.name),
+          a.master ? pill("Master", "accent") : null),
+        h("span.arow__m", {}, `${a.tone} · ${a.mode}${count ? ` · ${n(count)} ${a.master ? "handled" : "routed"}` : ""}`)),
+      h("span.dot" + (a.status === "active" ? ".dot--live" : ""), { style: { background: a.status === "active" ? "var(--ok)" : "var(--warn)" } }));
+  }));
 
   return frag(
     pageHead({
-      eyebrowIcon: "bot", eyebrow: `Agents · ${s.agents.length}`,
+      eyebrowIcon: "bot", eyebrow: `Agents · ${list.length}`,
       accentWord: "One", rest: "identity, every channel.",
-      sub: "The master agent is what customers meet. Sub-agents are specialists it calls as tools, not separate bots you deploy.",
-      actions: btn("Create sub-agent", { kind: "accent", icon: "plus", onClick: () => go("#/agents/new") }),
+      sub: "The master agent is what customers meet. Specialists sit behind it and are called as tools, so a customer only ever talks to one.",
+      actions: btn("Create agent", { kind: "accent", icon: "plus", onClick: () => go("#/agents/new") }),
     }),
-    master ? masterCard(master, subs) : empty("No master agent", "One is provisioned automatically at signup."));
+    h("div.split", {}, rows, sel ? agentDetail(sel) : h("div")));
 }
 
-/** The master owns the page. Sub-agents live inside it, because that is the
-    only place they exist — they are reachable as a tool call, not deployed. */
-function masterCard(a, subs) {
+function agentDetail(a) {
   const st = S.get();
-  const live = S.derive.liveChannels();
+  const stats = S.derive.statsFor(a.id);
   const kn = st.knowledge.filter((k) => a.knowledge.includes(k.id));
+  const tools = st.mcpServers.filter((m) => a.tools.includes(m.id));
+  const live = S.derive.liveChannels();
+  const master = st.agents.find((x) => x.master);
 
-  return h("article.agent.is-master", {},
-    h("div.agent__head", {},
-      h("span.agent__av", {}, icon("bot", 22)),
-      h("div.agent__id", {},
+  return h("div.split__pane.adet", {},
+    h("div.adet__head", {},
+      h("span.agent__av" + (a.master ? "" : ".is-sub"), {}, icon("bot", 20)),
+      h("div", { style: { flex: "1", minWidth: "0" } },
         h("div.agent__top", {},
-          h("h2.agent__n", {}, a.name),
-          pill("Master", "accent"),
+          h("h2.adet__n", {}, a.name),
+          a.master ? pill("Master", "accent") : pill("Specialist"),
           pill(a.status === "active" ? "Active" : "Paused", a.status === "active" ? "ok" : "warn", true)),
-        h("p.agent__d", {}, a.desc)),
+        h("p.adet__d", {}, a.desc)),
       h("div.agent__acts", {},
         btn("Test", { size: "sm", onClick: () => testModal(a) }),
         btn("Edit", { kind: "accent", size: "sm", onClick: () => go("#/agents/" + a.id) }))),
 
-    h("div.agent__grid", {},
-      metaCell("Persona", `${a.tone} · ${a.len}`),
-      metaCell("Mode", a.mode),
-      metaCell("Language", a.lang),
-      h("div", {}, h("p.label", {}, "Knowledge"),
-        h("p.agent__v", {}, kn.length ? `${kn.length} source${kn.length === 1 ? "" : "s"} · ${n(kn.reduce((x, k) => x + k.chunks, 0))} chunks` : "None attached")),
-      h("div", {}, h("p.label", {}, "Answering on"),
-        live.length
+    h("div.adet__stats", {},
+      statCell(a.master ? "Conversations" : "Times routed", n(a.master ? stats.handled : stats.routed)),
+      statCell("Channels seen", n(stats.channels)),
+      statCell("Knowledge", n(kn.reduce((x, k) => x + k.chunks, 0)) + " chunks"),
+      statCell("Tools", tools.length ? n(tools.length) : "None")),
+
+    section("Reach", a.master
+      ? (live.length
           ? h("div.deployed", {}, ...live.map((c) => {
               const def = S.CHANNEL_TYPES.find((t) => t.id === c.type);
               return h("span.deployed__m", { title: def.name }, brandMark(def, 15));
-            }))
-          : h("p.deployed__none", {}, "No channel yet"))),
+            }), h("span.adet__note", {}, `Answering on ${live.length} channel${live.length === 1 ? "" : "s"}`))
+          : h("p.deployed__none", {}, "No channel deployed, so nothing reaches it yet"))
+      : h("p.adet__note", {}, `Not deployed anywhere. ${master ? master.name : "The master"} calls it as a tool when a conversation needs it.`)),
 
-    h("div.routes", {},
-      h("div.routes__h", {},
-        h("h3.routes__t", {}, subs.length ? `Routes to ${subs.length} specialist${subs.length === 1 ? "" : "s"}` : "No specialists yet"),
-        h("p.routes__d", {}, subs.length
-          ? "The master calls these as tools mid-conversation. Customers never address them directly."
-          : "Add one when a topic needs its own instructions or its own tools.")),
-      ...subs.map(routeRow),
-      h("div.routes__add", {}, btn("Add a specialist", { size: "sm", icon: "plus", onClick: () => go("#/agents/new") }))));
+    section("Persona", h("div.adet__grid", {},
+      metaCell("Tone", a.tone), metaCell("Length", a.len),
+      metaCell("Mode", a.mode), metaCell("Language", a.lang))),
+
+    section("System prompt", h("pre.adet__pre", {}, a.prompt || "No prompt set.")),
+
+    section("Knowledge", kn.length
+      ? h("div.chips", {}, ...kn.map((k) => h("span.chip", {}, icon("globe", 13), k.name,
+          h("span.chip__n", {}, n(k.chunks)))))
+      : h("p.adet__note", {}, "Nothing attached. It answers from the model's training alone.")),
+
+    section("Tools", tools.length
+      ? h("div.chips", {}, ...tools.map((m) => h("span.chip", {}, icon("blocks", 13), m.name)))
+      : h("p.adet__note", {}, "No tool servers attached, so it can answer but not act.")),
+
+    a.master ? null : h("div.adet__foot", {},
+      btn("Delete agent", { size: "sm", onClick: () => { S.actions.removeAgent(a.id); agentSel = null; toast("Deleted " + a.name); } })));
 }
 
+const statCell = (label, v) => h("div", {}, h("p.label", {}, label), h("p.adet__sv.num", {}, v));
 const metaCell = (label, v) => h("div", {}, h("p.label", {}, label), h("p.agent__v", {}, v));
-
-function routeRow(a) {
-  const kn = S.get().knowledge.filter((k) => a.knowledge.includes(k.id));
-  return h("div.route", {},
-    h("span.route__i", {}, icon("bot", 15)),
-    h("div.route__b", {},
-      h("p.route__n", {}, a.name,
-        pill(a.status === "active" ? "Active" : "Paused", a.status === "active" ? "ok" : "warn")),
-      h("p.route__d", {}, a.desc + " ",
-        `Speaks ${a.tone.toLowerCase()}, answers ${a.len.toLowerCase()}${kn.length ? `, cites ${kn.map((k) => k.name).join(" and ")}` : ", cites nothing yet"}.`)),
-    h("div.route__acts", {},
-      btn("Test", { size: "sm", onClick: () => testModal(a) }),
-      btn("Edit", { size: "sm", onClick: () => go("#/agents/" + a.id) }),
-      btn("Delete", { size: "sm", onClick: () => { S.actions.removeAgent(a.id); toast("Deleted " + a.name); } })));
-}
+const section = (title, body) => h("div.adet__s", {}, h("p.label.adet__st", {}, title), body);
 
 /* --- The 6-step wizard --------------------------------------------------- */
 

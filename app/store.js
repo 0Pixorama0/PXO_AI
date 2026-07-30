@@ -226,6 +226,17 @@ export const derive = {
   /** Which agents can actually cite a given source. A source no agent cites is
       indexed storage nobody can reach — the page used to hardcode this. */
   agentsFor: (sourceId) => state.agents.filter((a) => a.knowledge.includes(sourceId)),
+
+  /** Real per-agent activity: what the master handled, what each sub was
+      routed to. Without this the detail pane is configuration and nothing else. */
+  statsFor(id) {
+    const c = state.conversations;
+    return {
+      handled: c.filter((x) => x.agentId === id).length,
+      routed: c.filter((x) => x.routedTo === id).length,
+      channels: new Set(c.filter((x) => x.agentId === id || x.routedTo === id).map((x) => x.channel)).size,
+    };
+  },
   orphanSources: () => state.knowledge.filter((k) => derive.agentsFor(k.id).length === 0),
   pages:  () => state.knowledge.reduce((a, k) => a + k.pages, 0),
   liveChannels: () => state.channels.filter((c) => c.status === "active"),
@@ -406,12 +417,20 @@ const SAMPLES = [
 const NAMES = ["Aarav S.", "Meera K.", "Daniel R.", "Fatima A.", "Jonas W.", "Ling C.", "Tom B.", "Ines M."];
 
 function seedTraffic(s, type) {
+  const master = s.agents.find((a) => a.master);
+  const subs = s.agents.filter((a) => !a.master);
   const n = 6 + Math.floor(Math.random() * 7);
   for (let i = 0; i < n; i++) {
     const [q, a] = SAMPLES[Math.floor(Math.random() * SAMPLES.length)];
     const who = NAMES[Math.floor(Math.random() * NAMES.length)];
+    // The master takes every conversation; sometimes it routes to a specialist.
+    const routed = subs.length && Math.random() < 0.28
+      ? subs[Math.floor(Math.random() * subs.length)].id
+      : null;
     s.conversations.unshift({
       id: "cv-" + uid(),
+      agentId: master ? master.id : null,
+      routedTo: routed,
       channel: type,
       contact: who,
       at: now() - Math.floor(Math.random() * 86400e3 * 6),
