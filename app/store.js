@@ -169,15 +169,38 @@ function seed() {
 
 /* --- Persistence -------------------------------------------------------- */
 
-let state;
-try {
-  const raw = localStorage.getItem(KEY);
-  state = raw ? JSON.parse(raw) : seed();
-} catch { state = seed(); }
+/** Persisted state is older than the code reading it. Every time a new key is
+    added to seed(), any browser holding state from before that change would
+    read undefined and the screen would throw — which is exactly what happened
+    when `connections` was introduced. Fill in whatever the saved object is
+    missing, at the top level and one level inside object values. */
+function hydrate(raw) {
+  const base = seed();
+  if (!raw) return base;
+  let saved;
+  try { saved = JSON.parse(raw); } catch { return base; }
+  if (!saved || typeof saved !== "object") return base;
 
-function persist() {
+  for (const [k, v] of Object.entries(base)) {
+    if (!(k in saved) || saved[k] === null || saved[k] === undefined) {
+      saved[k] = v;
+    } else if (v && typeof v === "object" && !Array.isArray(v) &&
+               saved[k] && typeof saved[k] === "object" && !Array.isArray(saved[k])) {
+      for (const [sk, sv] of Object.entries(v)) {
+        if (!(sk in saved[k])) saved[k][sk] = sv;
+      }
+    }
+  }
+  return saved;
+}
+
+let state = hydrate(localStorage.getItem(KEY));
+persistNow();
+
+function persistNow() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
 }
+const persist = persistNow;
 
 export function get() { return state; }
 

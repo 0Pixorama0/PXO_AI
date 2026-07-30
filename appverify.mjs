@@ -222,6 +222,32 @@ await goTo("#/knowledge"); await shot("knowledge-dark");
 await goTo("#/channels"); await shot("channels-dark");
 await ev(`document.documentElement.dataset.theme = 'light'`);
 
+/* Stale-state boot. Every earlier run started with ?reset=1, so a browser
+   holding state older than the current seed was never exercised — that gap let
+   a crash on #/knowledge reach the user. Strip newer keys, then walk the routes. */
+console.log("\n=== stale persisted state ===");
+await ev(`(() => {
+  const s = JSON.parse(localStorage.getItem("voiceforge.v1"));
+  delete s.connections; delete s.composio; delete s.models;
+  delete s.workspace.officialMark; delete s.workspace.accent;
+  localStorage.setItem("voiceforge.v1", JSON.stringify(s));
+})()`);
+await send("Page.navigate", { url: BASE + "?theme=light" });
+await sleep(2600);
+const broken = [];
+for (const [hash, name] of ROUTES) {
+  await goTo(hash);
+  const ok = await ev(`!document.querySelector('.canvas').textContent.includes('failed to render')`);
+  if (!ok) broken.push(`${name}: ${await ev(`document.querySelector('.empty__d')?.textContent`)}`);
+}
+console.log(broken.length
+  ? "  BROKEN -> " + broken.join(" | ")
+  : "  every route survives state older than the seed");
+console.log("  keys healed :", await ev(`(() => {
+  const s = JSON.parse(localStorage.getItem("voiceforge.v1"));
+  return ["connections", "composio", "models"].filter((k) => k in s).join(", ");
+})()`));
+
 console.log("\n=== responsive ===");
 for (const [hash, name] of ROUTES) {
   await goTo(hash);
