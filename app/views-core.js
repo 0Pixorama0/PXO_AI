@@ -2,11 +2,11 @@
    Core product screens: Dashboard, Knowledge, MCP Tools, Agents, Channels, Inbox
    ========================================================================= */
 
-import * as S from "./store.js";
+import * as S from "./store.js?v=mseqdzxe";
 import {
   h, frag, icon, n, money, ago, pageHead, empty, pill, btn, field, input, textarea,
   select, toggle, choice, tabs, statStrip, group, card, modal, close, toast, brandMark,
-} from "./ui.js";
+} from "./ui.js?v=mseqdzxe";
 
 const go = (hash) => { location.hash = hash; };
 

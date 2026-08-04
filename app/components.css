@@ -478,3 +478,50 @@ body.is-narrow .logo { height: 22px; }
 .chip__n { font-family: var(--mono); font-size: var(--t-micro); color: var(--text-3); font-weight: 500; }
 
 .adet__foot { padding: var(--s-5) var(--s-6); }
+
+/* =========================================================================
+   MOBILE NAVIGATION
+   The sidebar is hidden below 900px. Without this there is no way to reach
+   any screen on a phone, a tablet, or a narrow preview pane.
+   ========================================================================= */
+
+.topbar__menu {
+  display: none;
+  width: 32px; height: 32px;
+  place-items: center;
+  margin-right: var(--s-2);
+  border-radius: var(--r-sm);
+  color: var(--text-2);
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.topbar__menu:hover { background: var(--well); color: var(--text); }
+
+.navback {
+  position: fixed; inset: 0; z-index: 40;
+  background: rgba(8, 8, 11, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+@media (max-width: 900px) {
+  .topbar__menu { display: grid; }
+
+  /* Present again, as a drawer rather than a column. */
+  .sidebar {
+    display: flex;
+    position: fixed;
+    top: 0; bottom: 0; left: 0;
+    z-index: 50;
+    width: 264px;
+    background: var(--bg);
+    border-right: 1px solid var(--border);
+    transform: translateX(-100%);
+    transition: transform var(--dur-base) var(--ease);
+    overflow-y: auto;
+  }
+  body.nav-open .sidebar { transform: none; }
+  body.nav-open { overflow: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition-duration: 0.001ms !important; }
+}

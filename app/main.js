@@ -2,10 +2,10 @@
    Shell + router. One nav, one header, one render path for every screen.
    ========================================================================= */
 
-import * as S from "./store.js";
-import { h, frag, icon, btn, pill, ago, modal, close, toast, enter, logoMark } from "./ui.js";
-import * as Core from "./views-core.js";
-import * as Admin from "./views-admin.js";
+import * as S from "./store.js?v=mseqdzxe";
+import { h, frag, icon, btn, pill, ago, modal, close, toast, enter, logoMark } from "./ui.js?v=mseqdzxe";
+import * as Core from "./views-core.js?v=mseqdzxe";
+import * as Admin from "./views-admin.js?v=mseqdzxe";
 
 const NAV = [
   { group: "Generic", items: [
@@ -72,7 +72,7 @@ function sidebar(activeId) {
       h("div.nav__group", {},
         h("p.label.nav__title", {}, g.group),
         ...g.items.map((it) =>
-          h("a.nav__item" + (it.id === activeId ? ".is-active" : ""), { href: it.route },
+          h("a.nav__item" + (it.id === activeId ? ".is-active" : ""), { href: it.route, onclick: closeNav },
             icon(it.icon), it.label,
             it.id === activeId ? h("span.nav__dot") : null))))),
     h("div.sidebar__foot", {},
@@ -84,6 +84,9 @@ function topbar(crumb) {
   const s = S.get();
   const unread = s.notifications.filter((x) => !x.read).length;
   return h("header.topbar", {},
+    // Below 900px the sidebar is hidden, so this is the only way to navigate.
+    h("button.topbar__menu", { "aria-label": "Open navigation", onclick: openNav },
+      icon("panel")),
     h("div.crumbs", {},
       h("span", {}, s.workspace.name),
       h("span.crumbs__sep", {}, "/"),
@@ -100,6 +103,17 @@ function topbar(crumb) {
           render();
         } }, icon(root.dataset.theme === "dark" ? "sun" : "moon")),
       h("div.avatar", {}, s.users[0]?.name.slice(0, 1) || "U")));
+}
+
+function openNav() {
+  document.body.classList.add("nav-open");
+  const back = h("div.navback", { onclick: closeNav });
+  document.body.append(back);
+}
+
+function closeNav() {
+  document.body.classList.remove("nav-open");
+  document.querySelector(".navback")?.remove();
 }
 
 function notificationsModal() {
@@ -151,6 +165,7 @@ function render() {
     sidebar(activeId),
     h("div", {}, topbar(crumb), canvas));
 
+  closeNav();
   document.title = `VoiceForge · ${crumb}`;
   window.scrollTo(0, 0);
   enter(canvas);

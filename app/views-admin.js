@@ -2,12 +2,12 @@
    Admin screens: Providers, Users, Plans, Usage & Billing, Settings
    ========================================================================= */
 
-import * as S from "./store.js";
+import * as S from "./store.js?v=mseqdzxe";
 import {
   h, frag, icon, n, money, ago, pageHead, empty, pill, btn, field, input,
   select, toggle, choice, tabs, statStrip, group, card, modal, close, toast, brandMark,
-} from "./ui.js";
-import { rerender } from "./views-core.js";
+} from "./ui.js?v=mseqdzxe";
+import { rerender } from "./views-core.js?v=mseqdzxe";
 
 const go = (hash) => { location.hash = hash; };
 

@@ -260,5 +260,28 @@ for (const [hash, name] of ROUTES) {
 }
 console.log("  (no lines above means every route fits 390px)");
 
+/* Fitting is not the same as being usable. The sidebar is hidden below 900px,
+   so navigation has to come from somewhere, or the app is unreachable on a
+   phone. That gap shipped once already. */
+await goTo("#/");
+await send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+await sleep(500);
+console.log("");
+console.log("=== mobile navigation ===");
+console.log("  sidebar hidden  :", await ev(`getComputedStyle(document.querySelector('.sidebar')).transform !== 'none'`));
+console.log("  menu button     :", await ev(`getComputedStyle(document.querySelector('.topbar__menu')).display !== 'none'`));
+await ev(`document.querySelector('.topbar__menu').click()`);
+await sleep(500);
+console.log("  drawer opens    :", await ev(`document.body.classList.contains('nav-open')`));
+console.log("  nav reachable   :", await ev(`(() => {
+  const a = document.querySelector('.nav__item');
+  const r = a.getBoundingClientRect();
+  return r.width > 0 && r.left >= 0;
+})()`));
+await ev(`[...document.querySelectorAll('.nav__item')].find(a => a.textContent.includes('Channels')).click()`);
+await sleep(700);
+console.log("  navigates+closes:", await ev(`location.hash`), "|", await ev(`!document.body.classList.contains('nav-open')`));
+await send("Emulation.clearDeviceMetricsOverride");
+
 console.log("\n=== errors:", errors.length ? "\n" + [...new Set(errors)].join("\n") : "none");
 ws.close(); chrome.kill(); process.exit(0);

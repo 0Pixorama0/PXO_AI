@@ -1,5 +1,5 @@
-@import url("./fonts/fonts.css");
-@import url("./app/components.css");
+@import url("./fonts/fonts.css?v=mseqdzxe");
+@import url("./app/components.css?v=mseqdzxe");
 
 /* =========================================================================
    DESIGN DNA — every value in this file resolves to a token below.
@@ -824,7 +824,7 @@ svg { display: block; }
 
 @media (max-width: 900px) {
   .app { grid-template-columns: minmax(0, 1fr); }
-  .sidebar { display: none; }
+  /* .sidebar becomes a drawer in app/components.css rather than disappearing */
   .canvas { padding: var(--s-6) var(--s-5) var(--s-9); }
   .topbar { padding: 0 var(--s-5); }
   .hero { padding: var(--s-6); }
